@@ -20,10 +20,17 @@ urlcolor: blue
 ## Introduction
 
 ## Downloading Data
-
-```{r}
+```{r, message = FALSE}
+library(keras)         # to train neural networks
+library(kableExtra)    # to print tables
+library(cowplot)       # to print side-by-side plots
+library(tidyverse)     # tidyverse
+library(tensorflow)
 library(dplyr)
 library(haven)
+```
+```{r, eval=FALSE}
+
 url_2019 = "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/dataset_documentation/nhamcs/stata/ED2019-stata.zip"
 url_2018 = "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/dataset_documentation/nhamcs/stata/ED2018-stata.zip"
 url_2017 = "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/dataset_documentation/nhamcs/stata/ed2017-stata.zip"
@@ -57,11 +64,12 @@ head(data_2015)
 ```
 
 ## Data Wrangling
-```{r}
+```{r, eval=FALSE}
 data_raw = bind_rows(data_2015, data_2016, data_2017, data_2018, data_2019)
 head(data_raw)
-View(data_raw)
+#View(data_raw)
 ```
+
 ```{r}
 #Notes: -7 codes for Not Applicable, -9 codes for Blank, "Blank"
 #Collapse multiple columns to 1 column
@@ -79,17 +87,58 @@ data_clean_delete = data_clean_combine %>%
             MRICONTRAST, MED15:MED30,
             GPMED4:GPMED30,
             LEFTBTRI:DIEDED, ))
-View(data_clean_delete)
+#View(data_clean_delete)
+data_clean_delete
 ```
 
 Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
 
-
+## Train & Test Split
+```{r}
+train_samples = sample(1:nrow(data_clean_delete), 0.8*nrow(data_clean_delete))
+admit_train = data_clean_delete %>% filter(row_number() %in% train_samples)
+admit_test = data_clean_delete %>% filter(!(row_number() %in% train_samples))
+```
 
 ## Data Description and Exploration
 **Our response variable is ADMITHOS, which is a categorical variable assigned a 1 if the patient was admitted to this hospital and 0 if they were not admitted. We have several similar variables that tell us information on patient disposition, ie where a patient went after appearing at the hospital. OBSHOS (indicating patients were admitted to the hospital after observation in the emergency department), TRANPYSC (patient transferred to a psychiatric hospital), and TRANOTH (patient was transferred to another hospital) were also variables that indicate the patient experienced additional care after being seen in the emergency department. However, we decided to focus only on ADMITHOS because of the clarity of the variable compared to the other potential response variables. TRANPYSC could indicate the patient went to a pyschiatric hospital but may not have been admitted to that hospital; the same concern plagues the TRANOTH variable. OBSHOS is also binary and for every positive OBSHOS observed, there is also a positive ADMITHOS value for that given patient, so we**
+```{r}
+data_clean_delete %>%
+  group_by(ADMITHOS) %>%
+  summarise(cnt = n()) %>%
+  mutate(freq = round(cnt / sum(cnt), 3)) 
+```
+**Around 9.9% of people were admitted to the hospital.**
 
 ## Model Building, Evaluation, and Interpretation
+
+### Linear Regression
+
+### Logistic Regression
+
+```{r}
+glm_fit = glm(ADMITHOS ~ .,
+              family = "binomial",
+              data = admit_train)
+coef(glm_fit)
+
+fitted_probabilities = predict(glm_fit,
+        newdata = admit_test,
+type = "response") # to get output on probability scale head(fitted_probabilities)
+
+predictions = as.numeric(fitted_probabilities > 0.5)
+
+admit_test = admit_test %>%
+  mutate(predicted_admit = predictions)
+
+admit_test %>%
+  summarise(mean(ADMITHOS != predicted_admit))
+ 
+```
+
+### Trees
+
+### CNN
 
 ## Conclusions
 
