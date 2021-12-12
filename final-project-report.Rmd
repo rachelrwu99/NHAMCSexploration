@@ -108,6 +108,12 @@ data_clean_delete = data_clean_delete[vapply(data_clean_delete, function(x) leng
 data_clean_delete
 
 sapply(lapply(data_clean_delete, unique), length)
+            
+#View(data_clean_delete)
+data_clean_delete
+
+data_clean_delete = data_clean_delete[,order(colnames(data_clean_delete))]
+
 colnames(data_clean_delete)
 #data_clean_labeled = data_clean_delete
 #data_clean_labeled$col_types = 
