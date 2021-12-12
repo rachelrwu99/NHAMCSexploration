@@ -28,6 +28,8 @@ library(tidyverse)     # tidyverse
 library(tensorflow)
 library(dplyr)
 library(haven)
+library(pROC) # for ROC curves
+library(ggplot2)
 ```
 ```{r, eval=FALSE}
 
@@ -73,9 +75,12 @@ head(data_raw)
 ```{r}
 #Notes: -7 codes for Not Applicable, -9 codes for Blank, "Blank"
 #Collapse multiple columns to 1 column
-data_clean_combine = data_raw %>% 
-  mutate(num_meds = rowSums(select(data_raw, MED1:MED30) != 30))   #add num medications logged
+#data_clean_combine = data_raw %>% 
+#  mutate(num_meds = rowSums(select(data_raw, MED1:MED30) != 30))   #add num medications logged
 
+
+#order columns alphabetically
+data_clean_combine = data_clean_combine[,order(colnames(data_clean_combine))]
 
 data_clean_delete = data_clean_combine %>% 
   select(-c(AGER, AGEDAYS, 
@@ -86,12 +91,27 @@ data_clean_delete = data_clean_combine %>%
             DIAG43D, DIAG53D, 
             MRICONTRAST, MED15:MED30,
             GPMED4:GPMED30,
-            LEFTBTRI:DIEDED, ))
+            LEFTBTRI:DIEDED, ADMIT, ADMTPHYS, AGEFL, BLANK1, BLANK2, 
+            BLANK3, BLANK4, CPSUM, CSTRATM, COMSTAT1:COMSTAT9,EDWT, HDDIAG1:HDDIAG5R, 
+            HOSPCODE, LBTC, LWBS, MSA, PATCODE, PATWT, RACERFL, RESPRD, PTONLINEE1: PTONLINEE6,
+            RFID, SEXFL, TRANNH, TRANOTH, TRANPSYC, YEAR))
 #View(data_clean_delete)
 data_clean_delete
 
-data_clean_delete %>% data_clean_delete[,order(colnames(data_clean_delete))]
+
+
+
+
+# drop columns where values are all the same
+data_clean_delete = data_clean_delete[vapply(data_clean_delete, function(x) length(unique(x)) > 1, logical(1L))]
+
+data_clean_delete
+
+sapply(lapply(data_clean_delete, unique), length)
 colnames(data_clean_delete)
+#data_clean_labeled = data_clean_delete
+#data_clean_labeled$col_types = 
+#data_clean_labeled %>% type_convert(col_types ="fff-f-fi-fffffiffffffff----ffffiffiiiiffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff--ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff---------------fffff-fffffffffffffffffffffff-fiif-fffffffffffffffff-ffffffff-iiiffffffffffifffffffffi--fffffffffffffiffffffffffffffffffffffffffffffffffffffffffiiff-fffffi-ff-fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-fffifddiifif---fffffffifff-f")
 ```
 
 Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
@@ -120,7 +140,7 @@ data_clean_delete %>%
 ### Logistic Regression
 
 ```{r}
-glm_fit = glm(ADMITHOS ~ .,
+glm_fit = glm(ADMITHOS ~ RACEUN + ARREMS + PAYTYPER + ABG + CONTSUB28,
               family = "binomial",
               data = admit_train)
 coef(glm_fit)
@@ -134,10 +154,49 @@ predictions = as.numeric(fitted_probabilities > 0.5)
 admit_test = admit_test %>%
   mutate(predicted_admit = predictions)
 
+# then calculate misclassification rate
 admit_test %>%
-  summarise(mean(ADMITHOS != predicted_admit))
+    summarise(mean(ADMITHOS != predicted_admit))
+
+#confusion matrix
+admit_test %>%
+  select(ADMITHOS, predicted_admit) %>%
+  table()
  
 ```
+```{r}
+# ROC Curve
+# ROC curve
+roc_data = roc(admit_test %>% pull(ADMITHOS),
+               fitted_probabilities)
+tibble(FPR = 1-roc_data$specificities,
+       TPR = roc_data$sensitivities) %>%
+  ggplot(aes(x = FPR, y = TPR)) +
+  geom_line() +
+  geom_abline(slope = 1, linetype = "dashed") +
+#  geom_point(x = fpr, y = 1-fnr, colour = "red") +
+  theme_bw()
+
+# print the AUC
+roc_data$auc
+ 
+```
+```{r}
+admit_train %>%
+  ggplot(aes(x = ABG, y = ADMITHOS))+
+  geom_jitter(height = .05) +
+  geom_smooth(method = "glm",
+              formula = "y~x",
+              method.args = list(family = "binomial"),
+              se = FALSE) +
+  ylab("Prob(ADMITHOS=1)") +
+  theme_bw()
+```
+
+
+
+
+
 
 ### Trees
 
