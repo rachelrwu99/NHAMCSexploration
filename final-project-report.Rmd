@@ -86,9 +86,8 @@ data_clean_delete = data_clean_combine %>%
             DIAG43D, DIAG53D, 
             MRICONTRAST, MED15:MED30,
             GPMED4:GPMED30,
-            LEFTBTRI:DIEDED, ))
+            LEFTBTRI:DIEDED))
 #View(data_clean_delete)
-data_clean_delete
 ```
 
 Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
