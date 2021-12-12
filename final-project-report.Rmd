@@ -89,6 +89,9 @@ data_clean_delete = data_clean_combine %>%
             LEFTBTRI:DIEDED, ))
 #View(data_clean_delete)
 data_clean_delete
+
+data_clean_delete %>% data_clean_delete[,order(colnames(data_clean_delete))]
+colnames(data_clean_delete)
 ```
 
 Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
@@ -106,7 +109,7 @@ admit_test = data_clean_delete %>% filter(!(row_number() %in% train_samples))
 data_clean_delete %>%
   group_by(ADMITHOS) %>%
   summarise(cnt = n()) %>%
-  mutate(freq = round(cnt / sum(cnt), 3)) 
+  mutate(freq = round(cnt / sum(cnt), 3))
 ```
 **Around 9.9% of people were admitted to the hospital.**
 
