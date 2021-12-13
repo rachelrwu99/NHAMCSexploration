@@ -75,36 +75,57 @@ head(data_raw)
 ```{r}
 #Notes: -7 codes for Not Applicable, -9 codes for Blank, "Blank"
 #order columns alphabetically
-data_clean_combine = data_clean_combine[,order(colnames(data_clean_combine))]
+data_raw_ordered = data_raw[,order(colnames(data_raw))]
 #Imput missing data
-data_clean_delete_missing <- data_clean_combine[!(data_clean_combine$TEMPF == -9 |
-                                                    data_clean_combine$TEMPDF == -9 |
-                                                    data_clean_combine$TOTDIAG == -9 |
-                                                    data_clean_combine$TOTPROC == -9 |
-                                                    data_clean_combine$WAITTIME == -9 |
-                                                    data_clean_combine$WAITTIME == -7), ]
-#Delete all the char variables, will not work in the glm_fit
+data_clean_delete_missing <- data_raw_ordered[!(data_raw_ordered$RESIDNCE < 0 |
+                                                  data_raw_ordered$RESPR < 0 |
+                                                  data_raw_ordered$TEMPF < 0 |
+                                                  data_raw_ordered$TEMPDF < 0 |
+                                                  data_raw_ordered$PULSE < 0 |
+                                                  data_raw_ordered$TOTDIAG < 0 |
+                                                  data_raw_ordered$TOTPROC < 0 |
+                                                  data_raw_ordered$WAITTIME < 0 |
+                                                  data_raw_ordered$WAITTIME < 0) |
+                                                  !is.na(data_raw_ordered$PRESCR1) |
+                                                  !is.na(data_raw_ordered$PRESCR2), ]
+
+#Delete all the char variables, will not work in the glm_fit, cuts col from 1058 to 521
 data_clean_delete_char <- data_clean_delete_missing[, sapply(data_clean_delete_missing, 
                                                              function(x) !is.character(x))]
-#Delete certain variables
+#Delete certain variables taken post/at discharge
 data_clean_delete_var <- data_clean_delete_char %>% 
-  select(-c(AGER, AGEDAYS, 
+  select(-c(AGER, AGEDAYS, ADISP, LOS,
             RFV4, RFV5, 
             RFV43D, RFV53D, 
             PRDIAG4, PRDIAG5,
-            MRICONTRAST, MED15:MED30,
+            MRICONTRAST, MED10:MED30,
             GPMED4:GPMED30,
             LEFTBTRI:DIEDED, ADMIT, ADMTPHYS, AGEFL, BLANK1, BLANK2, 
             BLANK3, BLANK4, CPSUM, CSTRATM, COMSTAT1:COMSTAT9,EDWT, 
-            HOSPCODE, LBTC, LWBS, MSA, PATCODE, PATWT, RACERFL, RESPRD, PTONLINEE1: PTONLINEE6,
-            RFID, SEXFL, TRANNH, TRANOTH, TRANPSYC, YEAR))
+            HOSPCODE, LBTC, LWBS, MSA, OBSDIS, OBSHOS, 
+            PATCODE, PATWT, PULSED, RACERFL, RESPRD, PTONLINEE1: PTONLINEE6,
+            RFID, SEXFL, TEMPDF, TRANNH, TRANOTH, TRANPSYC, VITALSD , YEAR))
 
+#Delete these variables with >90% NA or -9, no way to impute, ncol/variables 234 to 179
+data_clean_delete_var <- data_clean_delete_var %>%
+  select(-c(CONTSUB10:CONTSUB19, CONTSUB20:CONTSUB9, 
+            DIAG3R:DIAG5R, PRESCR10:PRESCR19,
+            PRESCR20:PRESCR29, PRESCR6:PRESCR9))
+
+#Delete these variables with 50% NA or -9
+data_delete_var <- data_clean_delete_var %>% 
+  select(-c(MED4:MED9, PRESCR3:PRESCR5, REGDIV, TOTHRDIVR))
+#get rid of NA rows for PRESC1, PRESC2
 
 #Number of variables left
-ncol(data_clean_delete_var)
+ncol(data_delete_var)
 #Type of each column -> need to change into factor for some
-sapply(data_clean_delete_var, typeof)
+#sapply(data_clean_delete_var, typeof)
+
+
 #Find the means for each column for imputing
+#LOV replace -7, -9 and PAINSCALE replace -8, POPCT
+#Do we keep PRDIAG2 & 3? check w nrow(data_clean_delete_var[data_clean_delete_var$PRDIAG2==-7, ])
 means <- apply(data_clean_delete_var, 2, function(x) {
   mean(x[x>0])
   })
@@ -119,15 +140,10 @@ data_clean_delete = data_clean_delete[vapply(data_clean_delete, function(x) leng
 data_clean_delete
 
 sapply(lapply(data_clean_delete, unique), length)
-            
-#View(data_clean_delete)
-data_clean_delete
 
-data_clean_delete = data_clean_delete[,order(colnames(data_clean_delete))]
-
-#data_clean_labeled = data_clean_delete
-#data_clean_labeled$col_types = 
-#data_clean_labeled %>% type_convert(col_types ="fff-f-fi-fffffiffffffff----ffffiffiiiiffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff--ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff---------------fffff-fffffffffffffffffffffff-fiif-fffffffffffffffff-ffffffff-iiiffffffffffifffffffffi--fffffffffffffiffffffffffffffffffffffffffffffffffffffffffiiff-fffffi-ff-fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-fffifddiifif---fffffffifff-f")
+#################For testing
+#nrow(data_clean_delete_var[data_clean_delete_var$LOV==-7, ])
+#sum(is.na(data_clean_delete_var$CONTSUB16))
 ```
 
 Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
