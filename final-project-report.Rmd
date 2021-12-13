@@ -71,13 +71,25 @@ data_raw = bind_rows(data_2015, data_2016, data_2017, data_2018, data_2019)
 head(data_raw)
 #View(data_raw)
 ```
-
+#Clean missing data and delete variables with too few entries
 ```{r}
+#THINGS TO DO: CTCONTRAST LEAVE IN OR OUT, DIAG2R TAKE OUT -9 ROWS OR SCRAP WHOLE COLUMN?
+      #Do we keep PRDIAG2 & 3? check with
+                #nrow(data_clean_delete_var[data_clean_delete_var$PRDIAG2==-7, ])
+      #CHANGE VARIABLES TO FACTORS FROM DOUBLES (PROBABLY DO QUICK SCAN IF ONLY HAS 2 UNIQUE VAR)
+      #CLEAN OBSSTAY-> -7s, & IMPUTE MEANS FOR LOV PAINSCALE POPCT BPDIAS BPSYS
+
+
+
+
+
 #Notes: -7 codes for Not Applicable, -9 codes for Blank, "Blank"
 #order columns alphabetically
 data_raw_ordered = data_raw[,order(colnames(data_raw))]
 #Imput missing data
-data_clean_delete_missing <- data_raw_ordered[!(data_raw_ordered$RESIDNCE < 0 |
+data_clean_delete_missing <- data_raw_ordered[!(data_raw_ordered$ADMDIV < 0 | #controversial to keep
+                                                  data_raw_ordered$AMBTRANSFER < 0 | #controversial to keep
+                                                  data_raw_ordered$RESIDNCE < 0 |
                                                   data_raw_ordered$RESPR < 0 |
                                                   data_raw_ordered$TEMPF < 0 |
                                                   data_raw_ordered$TEMPDF < 0 |
@@ -87,7 +99,9 @@ data_clean_delete_missing <- data_raw_ordered[!(data_raw_ordered$RESIDNCE < 0 |
                                                   data_raw_ordered$WAITTIME < 0 |
                                                   data_raw_ordered$WAITTIME < 0) |
                                                   !is.na(data_raw_ordered$PRESCR1) |
-                                                  !is.na(data_raw_ordered$PRESCR2), ]
+                                                  !is.na(data_raw_ordered$PRESCR2) |
+                                                  !is.na(data_raw_ordered$CONTSUB1) |
+                                                  !is.na(data_raw_ordered$CONTSUB2), ]
 
 #Delete all the char variables, will not work in the glm_fit, cuts col from 1058 to 521
 data_clean_delete_char <- data_clean_delete_missing[, sapply(data_clean_delete_missing, 
@@ -108,38 +122,40 @@ data_clean_delete_var <- data_clean_delete_char %>%
 
 #Delete these variables with >90% NA or -9, no way to impute, ncol/variables 234 to 179
 data_clean_delete_var <- data_clean_delete_var %>%
-  select(-c(CONTSUB10:CONTSUB19, CONTSUB20:CONTSUB9, 
+  select(-c(BOARDED, CAUSE1R:CAUSE3R,
+            CONTSUB10:CONTSUB19, CONTSUB20:CONTSUB9, 
             DIAG3R:DIAG5R, PRESCR10:PRESCR19,
             PRESCR20:PRESCR29, PRESCR6:PRESCR9))
 
 #Delete these variables with 50% NA or -9
 data_delete_var <- data_clean_delete_var %>% 
   select(-c(MED4:MED9, PRESCR3:PRESCR5, REGDIV, TOTHRDIVR))
-#get rid of NA rows for PRESC1, PRESC2
 
+```
+#Imputing means
+```{r}
 #Number of variables left
 ncol(data_delete_var)
 #Type of each column -> need to change into factor for some
-#sapply(data_clean_delete_var, typeof)
+sapply(data_delete_var, typeof)
 
 
 #Find the means for each column for imputing
-#LOV replace -7, -9 and PAINSCALE replace -8, POPCT
-#Do we keep PRDIAG2 & 3? check w nrow(data_clean_delete_var[data_clean_delete_var$PRDIAG2==-7, ])
-means <- apply(data_clean_delete_var, 2, function(x) {
+#LOV replace -7, -9 and PAINSCALE replace -8, POPCT, BPDIAS,BPSYS
+means <- apply(data_delete_var, 2, function(x) {
   mean(x[x>0])
   })
 
-#View(data_clean_delete)
-data_clean_delete
+#View(data_delete_var)
+data_delete_var
 
 
 # drop columns where values are all the same
-data_clean_delete = data_clean_delete[vapply(data_clean_delete, function(x) length(unique(x)) > 1, logical(1L))]
+data_clean_delete = data_delete_var[vapply(data_delete_var, function(x) length(unique(x)) > 1, logical(1L))]
 
 data_clean_delete
 
-sapply(lapply(data_clean_delete, unique), length)
+#sapply(lapply(data_clean_delete, unique), length)
 
 #################For testing
 #nrow(data_clean_delete_var[data_clean_delete_var$LOV==-7, ])
