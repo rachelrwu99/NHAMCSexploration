@@ -74,32 +74,43 @@ head(data_raw)
 
 ```{r}
 #Notes: -7 codes for Not Applicable, -9 codes for Blank, "Blank"
-#Collapse multiple columns to 1 column
-#data_clean_combine = data_raw %>% 
-#  mutate(num_meds = rowSums(select(data_raw, MED1:MED30) != 30))   #add num medications logged
-
-
 #order columns alphabetically
 data_clean_combine = data_clean_combine[,order(colnames(data_clean_combine))]
-
-data_clean_delete = data_clean_combine %>% 
+#Imput missing data
+data_clean_delete_missing <- data_clean_combine[!(data_clean_combine$TEMPF == -9 |
+                                                    data_clean_combine$TEMPDF == -9 |
+                                                    data_clean_combine$TOTDIAG == -9 |
+                                                    data_clean_combine$TOTPROC == -9 |
+                                                    data_clean_combine$WAITTIME == -9 |
+                                                    data_clean_combine$WAITTIME == -7), ]
+#Delete all the char variables, will not work in the glm_fit
+data_clean_delete_char <- data_clean_delete_missing[, sapply(data_clean_delete_missing, 
+                                                             function(x) !is.character(x))]
+#Delete certain variables
+data_clean_delete_var <- data_clean_delete_char %>% 
   select(-c(AGER, AGEDAYS, 
             RFV4, RFV5, 
             RFV43D, RFV53D, 
-            PRDIAG4, PRDIAG5, 
-            DIAG4, DIAG5, 
-            DIAG43D, DIAG53D, 
+            PRDIAG4, PRDIAG5,
             MRICONTRAST, MED15:MED30,
             GPMED4:GPMED30,
             LEFTBTRI:DIEDED, ADMIT, ADMTPHYS, AGEFL, BLANK1, BLANK2, 
-            BLANK3, BLANK4, CPSUM, CSTRATM, COMSTAT1:COMSTAT9,EDWT, HDDIAG1:HDDIAG5R, 
+            BLANK3, BLANK4, CPSUM, CSTRATM, COMSTAT1:COMSTAT9,EDWT, 
             HOSPCODE, LBTC, LWBS, MSA, PATCODE, PATWT, RACERFL, RESPRD, PTONLINEE1: PTONLINEE6,
             RFID, SEXFL, TRANNH, TRANOTH, TRANPSYC, YEAR))
+
+
+#Number of variables left
+ncol(data_clean_delete_var)
+#Type of each column -> need to change into factor for some
+sapply(data_clean_delete_var, typeof)
+#Find the means for each column for imputing
+means <- apply(data_clean_delete_var, 2, function(x) {
+  mean(x[x>0])
+  })
+
 #View(data_clean_delete)
 data_clean_delete
-
-
-
 
 
 # drop columns where values are all the same
@@ -114,8 +125,6 @@ data_clean_delete
 
 data_clean_delete = data_clean_delete[,order(colnames(data_clean_delete))]
 
-colnames(data_clean_delete)
-sapply(data_clean_delete, typeof) #This tells us which columns are chars -> all of the RX variables!!
 #data_clean_labeled = data_clean_delete
 #data_clean_labeled$col_types = 
 #data_clean_labeled %>% type_convert(col_types ="fff-f-fi-fffffiffffffff----ffffiffiiiiffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff--ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff---------------fffff-fffffffffffffffffffffff-fiif-fffffffffffffffff-ffffffff-iiiffffffffffifffffffffi--fffffffffffffiffffffffffffffffffffffffffffffffffffffffffiiff-fffffi-ff-fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-fffifddiifif---fffffffifff-f")
@@ -150,6 +159,9 @@ data_clean_delete %>%
 glm_fit = glm(ADMITHOS ~ RACEUN + ARREMS + PAYTYPER + ABG + CONTSUB28,
               family = "binomial",
               data = admit_train)
+# glm_fit = glm(ADMITHOS ~ .,
+#               family = "binomial",
+#               data = admit_train)
 coef(glm_fit)
 
 fitted_probabilities = predict(glm_fit,
