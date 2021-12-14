@@ -77,8 +77,7 @@ head(data_raw)
 #THINGS TO DO: CTCONTRAST LEAVE IN OR OUT, DIAG2R TAKE OUT -9 ROWS OR SCRAP WHOLE COLUMN?
       #Do we keep PRDIAG2 & 3? check with
                 #nrow(data_clean_delete_var[data_clean_delete_var$PRDIAG2==-7, ])
-      #CHANGE VARIABLES TO FACTORS FROM DOUBLES (PROBABLY DO QUICK SCAN IF ONLY HAS 2 UNIQUE VAR)
-      #CLEAN OBSSTAY-> -7s, & IMPUTE MEANS FOR LOV PAINSCALE POPCT BPDIAS BPSYS
+      #Fill in means line 162
 
 
 
@@ -156,7 +155,6 @@ data_factored[ , keep_double] <- lapply(data_factored[ , keep_double], as.numeri
 #Imputing means
 ```{r}
 #Find the means for each column for imputing
-#LOV replace -7, -9 and PAINSCALE replace -8, POPCT, BPDIAS,BPSYS
 means <- apply(data_factored[,keep_double], 2, function(x) {
   mean(x[which(x > 0)])
   })
