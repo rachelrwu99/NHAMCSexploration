@@ -119,7 +119,7 @@ data_clean_delete_var <- data_clean_delete_char %>%
             BLANK3, BLANK4, CPSUM, CSTRATM, COMSTAT1:COMSTAT9,EDWT, 
             HOSPCODE, LBTC, LWBS, MSA, OBSDIS, OBSHOS, 
             PATCODE, PATWT, PULSED, RACERFL, RESPRD, PTONLINEE1: PTONLINEE6,
-            RFID, SEXFL, TEMPDF, TRANNH, TRANOTH, TRANPSYC, VITALSD , YEAR))
+            RFID, SEXFL, SETTYPE, TEMPDF, TRANNH, TRANOTH, TRANPSYC, VITALSD , YEAR))
 
 #Delete these variables with >90% NA or -9, no way to impute, ncol/variables 234 to 179
 data_clean_delete_var <- data_clean_delete_var %>%
@@ -135,14 +135,13 @@ data_delete_var <- data_clean_delete_var %>%
 #Create factors from doubles
 ```{r}
 data_factored <- data_delete_var
-keep_double <- c("AGE", "BPDIAS", "BOARDED", "BPSYS", 
+keep_double <- c("AGE", "BPDIAS", "BPSYS", 
                 "NUMDIS", "NUMGIV", "NUMMED", "OBSSTAY", 
                  "PAINSCALE", "POPCT", "PULSE", "RESPR", "SURGDAY", 
                  "TOTCHRON", "TOTDIAG", "TOTPROC", "WAITTIME")
 
 col_names <- names(data_factored)
 data_factored[,col_names] <- lapply(data_factored[,col_names] , as.factor)
-#as_factor(x = levels = "values")
 
 data_factored[ , keep_double] <- lapply(data_factored[ , keep_double], as.numeric)
 
@@ -158,12 +157,15 @@ data_factored[ , keep_double] <- lapply(data_factored[ , keep_double], as.numeri
 ```{r}
 #Find the means for each column for imputing
 #LOV replace -7, -9 and PAINSCALE replace -8, POPCT, BPDIAS,BPSYS
-means <- apply(data_factored, 2, function(x) {
-  mean(x[x>0])
+means <- apply(data_factored[,keep_double], 2, function(x) {
+  mean(x[which(x > 0)])
   })
-
 #for loop to fill keep_double 
-
+for (x in data_factored[, keep_double]) {
+  if(x > 0){ 
+    
+    }
+}
 
 
 #################For testing
@@ -179,15 +181,15 @@ Removing empty columns, remove gpmed variables because numGiv gives you sum of #
 
 ## Train & Test Split
 ```{r}
-train_samples = sample(1:nrow(data_clean_delete), 0.8*nrow(data_clean_delete))
-admit_train = data_clean_delete %>% filter(row_number() %in% train_samples)
-admit_test = data_clean_delete %>% filter(!(row_number() %in% train_samples))
+train_samples = sample(1:nrow(data_factored), 0.8*nrow(data_factored))
+admit_train = data_factored %>% filter(row_number() %in% train_samples)
+admit_test = data_factored %>% filter(!(row_number() %in% train_samples))
 ```
 
 ## Data Description and Exploration
 **Our response variable is ADMITHOS, which is a categorical variable assigned a 1 if the patient was admitted to this hospital and 0 if they were not admitted. We have several similar variables that tell us information on patient disposition, ie where a patient went after appearing at the hospital. OBSHOS (indicating patients were admitted to the hospital after observation in the emergency department), TRANPYSC (patient transferred to a psychiatric hospital), and TRANOTH (patient was transferred to another hospital) were also variables that indicate the patient experienced additional care after being seen in the emergency department. However, we decided to focus only on ADMITHOS because of the clarity of the variable compared to the other potential response variables. TRANPYSC could indicate the patient went to a pyschiatric hospital but may not have been admitted to that hospital; the same concern plagues the TRANOTH variable. OBSHOS is also binary and for every positive OBSHOS observed, there is also a positive ADMITHOS value for that given patient, so we**
 ```{r}
-data_clean_delete %>%
+data_raw %>%
   group_by(ADMITHOS) %>%
   summarise(cnt = n()) %>%
   mutate(freq = round(cnt / sum(cnt), 3))
@@ -201,17 +203,19 @@ data_clean_delete %>%
 ### Logistic Regression
 
 ```{r}
-glm_fit = glm(ADMITHOS ~ RACEUN + ARREMS + PAYTYPER + ABG + CONTSUB28,
+glm_fit = glm(ADMITHOS ~ RACEUN + ARREMS + PAYTYPER + ABG ,
               family = "binomial",
               data = admit_train)
 # glm_fit = glm(ADMITHOS ~ .,
 #               family = "binomial",
 #               data = admit_train)
+#sapply(lapply(data_factored, unique), length)
+#sapply(data_factored, typeof)
 coef(glm_fit)
 
 fitted_probabilities = predict(glm_fit,
         newdata = admit_test,
-type = "response") # to get output on probability scale head(fitted_probabilities)
+        type = "response") # to get output on probability scale head(fitted_probabilities)
 
 predictions = as.numeric(fitted_probabilities > 0.5)
 
