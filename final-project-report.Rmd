@@ -30,6 +30,7 @@ library(dplyr)
 library(haven)
 library(pROC) # for ROC curves
 library(ggplot2)
+library(haven)
 ```
 ```{r, eval=FALSE}
 
@@ -130,36 +131,48 @@ data_clean_delete_var <- data_clean_delete_var %>%
 #Delete these variables with 50% NA or -9
 data_delete_var <- data_clean_delete_var %>% 
   select(-c(MED4:MED9, PRESCR3:PRESCR5, REGDIV, TOTHRDIVR))
+```
+#Create factors from doubles
+```{r}
+data_factored <- data_delete_var
+keep_double <- c("AGE", "BPDIAS", "BOARDED", "BPSYS", 
+                "NUMDIS", "NUMGIV", "NUMMED", "OBSSTAY", 
+                 "PAINSCALE", "POPCT", "PULSE", "RESPR", "SURGDAY", 
+                 "TOTCHRON", "TOTDIAG", "TOTPROC", "WAITTIME")
+
+col_names <- names(data_factored)
+data_factored[,col_names] <- lapply(data_factored[,col_names] , as.factor)
+#as_factor(x = levels = "values")
+
+data_factored[ , keep_double] <- lapply(data_factored[ , keep_double], as.numeric)
+
+# job_clean <- job_satisfaction %>% mutate(income = ordered(Income, 
+#         c(levels=c("<5000", "5000-15000", "15000-25000", ">25000")))) %>% 
+#   mutate(job = ordered(Satisfaction,
+#         levels=c("Very Dissatisfied", "A Little Satisfied", 
+#                  "Moderately Satisfied", "Very Satisfied"))) %>%
+#   mutate(Gender = ordered(Gender, levels=c("Female", "Male")))
 
 ```
 #Imputing means
 ```{r}
-#Number of variables left
-ncol(data_delete_var)
-#Type of each column -> need to change into factor for some
-sapply(data_delete_var, typeof)
-
-
 #Find the means for each column for imputing
 #LOV replace -7, -9 and PAINSCALE replace -8, POPCT, BPDIAS,BPSYS
-means <- apply(data_delete_var, 2, function(x) {
+means <- apply(data_factored, 2, function(x) {
   mean(x[x>0])
   })
 
-#View(data_delete_var)
-data_delete_var
+#for loop to fill keep_double 
 
 
-# drop columns where values are all the same
-data_clean_delete = data_delete_var[vapply(data_delete_var, function(x) length(unique(x)) > 1, logical(1L))]
-
-data_clean_delete
-
-#sapply(lapply(data_clean_delete, unique), length)
 
 #################For testing
 #nrow(data_clean_delete_var[data_clean_delete_var$LOV==-7, ])
 #sum(is.na(data_clean_delete_var$CONTSUB16))
+#sapply(lapply(data_clean_delete, unique), length)
+#sapply(data_factored, typeof)
+#Number of variables left
+#ncol(data_delete_var)
 ```
 
 Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
