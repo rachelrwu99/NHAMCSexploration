@@ -159,11 +159,9 @@ means <- apply(data_factored[,keep_double], 2, function(x) {
   mean(x[which(x > 0)])
   })
 #for loop to fill keep_double 
-for (x in data_factored[, keep_double]) {
-  if(x > 0){ 
-    
-    }
-}
+data_factored$AGE[is.na(data_factored$AGE) | data_factored$AGE < 0] <- means[1]
+data_factored$BPDIAS[is.na(data_factored$BPDIAS) | data_factored$BPDIAS < 2] <- means[2]
+data_factored$BPSYS[is.na(data_factored$BPSYS) | data_factored$BPSYS < 2] <- means[3]
 
 
 #################For testing
