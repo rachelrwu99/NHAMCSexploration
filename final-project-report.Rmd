@@ -212,9 +212,9 @@ data_raw %>%
 ### Logistic Regression
 
 ```{r}
-glm_fit = glm(ADMITHOS ~ RACEUN + ARREMS + PAYTYPER + ABG ,
+glm_fit = glm(ADMITHOS ~ .,
               family = "binomial",
-              data = admit_train)
+              data = admit_train[1:50], na.aciton = na.exclude)
 # glm_fit = glm(ADMITHOS ~ .,
 #               family = "binomial",
 #               data = admit_train)
