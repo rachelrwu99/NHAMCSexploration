@@ -118,14 +118,16 @@ data_clean_delete_var <- data_clean_delete_char %>%
             BLANK3, BLANK4, CPSUM, CSTRATM, COMSTAT1:COMSTAT9,EDWT, 
             HOSPCODE, LBTC, LWBS, MSA, OBSDIS, OBSHOS, 
             PATCODE, PATWT, PULSED, RACERFL, RESPRD, PTONLINEE1: PTONLINEE6,
-            RFID, SEXFL, SETTYPE, TEMPDF, TRANNH, TRANOTH, TRANPSYC, VITALSD , YEAR))
+            RFID, SEXFL, SETTYPE, TEMPDF, TRANNH, TRANOTH, TRANPSYC, VITALSD , YEAR,
+            BPDIASD, BPSYSD))
 
 #Delete these variables with >90% NA or -9, no way to impute, ncol/variables 234 to 179
+#note SURGDAY is obsolete variable in 2018, so deleting
 data_clean_delete_var <- data_clean_delete_var %>%
   select(-c(BOARDED, CAUSE1R:CAUSE3R,
             CONTSUB10:CONTSUB19, CONTSUB20:CONTSUB9, 
             DIAG3R:DIAG5R, PRESCR10:PRESCR19,
-            PRESCR20:PRESCR29, PRESCR6:PRESCR9))
+            PRESCR20:PRESCR29, PRESCR6:PRESCR9, SURGDAY))
 
 #Delete these variables with 50% NA or -9
 data_delete_var <- data_clean_delete_var %>% 
@@ -136,13 +138,13 @@ data_delete_var <- data_clean_delete_var %>%
 data_factored <- data_delete_var
 keep_double <- c("AGE", "BPDIAS", "BPSYS", 
                 "NUMDIS", "NUMGIV", "NUMMED", "OBSSTAY", 
-                 "PAINSCALE", "POPCT", "PULSE", "RESPR", "SURGDAY", 
+                 "PAINSCALE", "POPCT", "PULSE", "RESPR", 
                  "TOTCHRON", "TOTDIAG", "TOTPROC", "WAITTIME")
 
 col_names <- names(data_factored)
 data_factored[,col_names] <- lapply(data_factored[,col_names] , as.factor)
 
-data_factored[ , keep_double] <- lapply(data_factored[ , keep_double], as.numeric)
+data_factored[ ,keep_double] <- lapply(data_factored[ , keep_double], as.numeric)
 
 # job_clean <- job_satisfaction %>% mutate(income = ordered(Income, 
 #         c(levels=c("<5000", "5000-15000", "15000-25000", ">25000")))) %>% 
@@ -158,11 +160,22 @@ data_factored[ , keep_double] <- lapply(data_factored[ , keep_double], as.numeri
 means <- apply(data_factored[,keep_double], 2, function(x) {
   mean(x[which(x > 0)])
   })
+pain_mean <- as.integer(mean(data_factored$PAINSCALE[which(data_factored$PAINSCALE < 11)]))
 #for loop to fill keep_double 
-data_factored$AGE[is.na(data_factored$AGE) | data_factored$AGE < 0] <- means[1]
-data_factored$BPDIAS[is.na(data_factored$BPDIAS) | data_factored$BPDIAS < 2] <- means[2]
-data_factored$BPSYS[is.na(data_factored$BPSYS) | data_factored$BPSYS < 2] <- means[3]
-
+data_factored$AGE[is.na(data_factored$AGE) | data_factored$AGE < 0] <- means["AGE"]
+data_factored$BPDIAS[is.na(data_factored$BPDIAS) | data_factored$BPDIAS < 2] <- means["BPDIAS"]
+data_factored$BPSYS[is.na(data_factored$BPSYS) | data_factored$BPSYS < 2] <- means["BPSYS"]
+#data_factored$NUMDIS[is.na(data_factored$NUMDIS) | data_factored$NUMDIS < 0] <- means[4]
+#data_factored$NUMGIV[is.na(data_factored$NUMGIV) | data_factored$NUMGIV < 0] <- means[5]
+#data_factored$NUMMED[is.na(data_factored$NUMMED) | data_factored$NUMMED < 0] <- means[5]
+data_factored$PAINSCALE[data_factored$PAINSCALE > 10] <- pain_mean
+data_factored$POPCT[is.na(data_factored$POPCT) | data_factored$POPCT < 0] <- means["POPCT"]
+data_factored$PULSE[is.na(data_factored$PULSE) | data_factored$PULSE < 0] <- means["PULSE"]
+data_factored$RESPR[is.na(data_factored$RESPR) | data_factored$RESPR < 0] <- means["RESPR"]
+data_factored$TOTCHRON[is.na(data_factored$TOTCHRON) | data_factored$TOTCHRON < 0] <- means["TOTCHRON"]
+data_factored$TOTDIAG[is.na(data_factored$TOTDIAG) | data_factored$TOTDIAG < 0] <- means["TOTDIAG"]
+data_factored$TOTPROC[is.na(data_factored$TOTPROC) | data_factored$TOTPROC < 0] <- means["TOTPROC"]
+data_factored$WAITTIME[is.na(data_factored$WAITTIME) | data_factored$WAITTIME < 0] <- means["WAITTIME"]
 
 #################For testing
 #nrow(data_clean_delete_var[data_clean_delete_var$LOV==-7, ])
