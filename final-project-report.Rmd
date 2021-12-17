@@ -185,6 +185,20 @@ data_factored$WAITTIME[is.na(data_factored$WAITTIME) | data_factored$WAITTIME < 
 #Number of variables left
 #ncol(data_delete_var)
 ```
+#Giving rows with NA another factor level
+```{r}
+#adding 0 level to CONTSUB1, CONTSUB2, PRESC1, PRESC2, for NA rows then refactoring 
+data_factored$CONTSUB1[is.na(data_factored$CONTSUB1)] <- 0
+data_factored$CONTSUB2[is.na(data_factored$CONTSUB2)] <- 0
+
+#Unfactor PRESCR1 and 2
+data_factored$PRESCR1 <- as.numeric(data_factored$PRESCR1)
+data_factored$PRESCR1[is.na(data_factored$PRESCR1)] <- 0
+data_factored$PRESCR2 <- as.numeric(data_factored$PRESCR2)
+data_factored$PRESCR2[is.na(data_factored$PRESCR2)] <- 0
+data_factored$PRESCR1 <- as.factor(data_factored$PRESCR1)
+data_factored$PRESCR2 <- as.factor(data_factored$PRESCR2) 
+```
 
 Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
 
