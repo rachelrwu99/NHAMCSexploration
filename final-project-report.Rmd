@@ -31,8 +31,12 @@ library(haven)
 library(pROC) # for ROC curves
 library(ggplot2)
 library(haven)
+library(corrplot)
+library(ggcorrplot)
+library(glmnetUtils)
 ```
-```{r, eval=FALSE}
+
+```{r}
 
 url_2019 = "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/dataset_documentation/nhamcs/stata/ED2019-stata.zip"
 url_2018 = "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/dataset_documentation/nhamcs/stata/ED2018-stata.zip"
@@ -67,12 +71,12 @@ head(data_2015)
 ```
 
 ## Data Wrangling
-```{r, eval=FALSE}
+```{r}
 data_raw = bind_rows(data_2015, data_2016, data_2017, data_2018, data_2019)
 head(data_raw)
 data_raw
 ```
-#Clean missing data and delete variables with too few entries
+### Clean missing data and delete variables with too few entries
 ```{r}
 #THINGS TO DO: CTCONTRAST LEAVE IN OR OUT, DIAG2R TAKE OUT -9 ROWS OR SCRAP WHOLE COLUMN?
       #Do we keep PRDIAG2 & 3? check with
@@ -130,7 +134,7 @@ data_clean_delete_var <- data_clean_delete_var %>%
 data_delete_var <- data_clean_delete_var %>% 
   select(-c(MED4:MED9, PRESCR3:PRESCR5, REGDIV, TOTHRDIVR))
 ```
-#Create factors from doubles
+### Create factors from doubles
 ```{r}
 data_factored <- data_delete_var
 keep_double <- c("AGE", "BPDIAS", "BPSYS", 
@@ -151,7 +155,7 @@ data_factored[ ,keep_double] <- lapply(data_factored[ , keep_double], as.numeric
 #   mutate(Gender = ordered(Gender, levels=c("Female", "Male")))
 
 ```
-#Imputing means
+### Imputing means
 ```{r}
 #Find the means for each column for imputing
 means <- apply(data_factored[,keep_double], 2, function(x) {
@@ -182,7 +186,7 @@ data_factored$WAITTIME[is.na(data_factored$WAITTIME) | data_factored$WAITTIME < 
 #Number of variables left
 #ncol(data_delete_var)
 ```
-#Giving rows with NA another factor level
+### Giving rows with NA another factor level
 ```{r}
 #adding 0 level to CONTSUB1, CONTSUB2, PRESC1, PRESC2, for NA rows then refactoring 
 data_factored$CONTSUB1[is.na(data_factored$CONTSUB1)] <- 0
@@ -204,11 +208,14 @@ data_factored = data_factored %>%
 
 Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
 
-## Train & Test Split
+### Train & Test Split
 ```{r}
 train_samples = sample(1:nrow(data_factored), 0.8*nrow(data_factored))
 admit_train = data_factored %>% filter(row_number() %in% train_samples)
 admit_test = data_factored %>% filter(!(row_number() %in% train_samples))
+
+# Keep only first 50 attributes in training data to make model not too complex
+admit_train = admit_train[1:50]
 ```
 
 ## Data Description and Exploration
@@ -220,10 +227,39 @@ admit_train %>%
   mutate(freq = round(cnt / sum(cnt), 3))
 ```
 **Around 10.9% of people were admitted to the hospital.**
+```{r}
+# correlation matrix
+corr_simple <- function(data=df,sig=0.3){
+  #convert data to numeric in order to run correlations
+  #convert to factor first to keep the integrity of the data - each value will become a number rather than turn into NA
+  df_cor <- data %>% mutate_if(is.character, as.factor)
+  df_cor <- df_cor %>% mutate_if(is.factor, as.numeric)
+  #run a correlation and drop the insignificant ones
+  corr <- cor(df_cor)
+  #prepare to drop duplicates and correlations of 1     
+  corr[lower.tri(corr,diag=TRUE)] <- NA 
+  #drop perfect correlations
+  corr[corr == 1] <- NA 
+  #turn into a 3-column table
+  corr <- as.data.frame(as.table(corr))
+  #remove the NA values from above 
+  corr <- na.omit(corr) 
+  #select significant values  
+  corr <- subset(corr, abs(Freq) > sig) 
+  #sort by highest correlation
+  corr <- corr[order(-abs(corr$Freq)),] 
+  #print table
+  print(corr)
+  #turn corr back into matrix in order to plot with corrplot
+  mtx_corr <- reshape2::acast(corr, Var1~Var2, value.var="Freq")
+  
+  #plot correlations visually
+  corrplot(mtx_corr, is.corr=FALSE, tl.col="black", na.label=" ")
+}
 
+corr_simple(admit_train)
+```
 ## Model Building, Evaluation, and Interpretation
-
-### Linear Regression
 
 ### Logistic Regression
 ```{r}
@@ -233,39 +269,31 @@ admit_train
 ```{r}
 glm_fit = glm(ADMITHOS ~ .,
               family = "binomial",
-              data = admit_train[1:50], na.action = na.exclude)
-# glm_fit = glm(ADMITHOS ~ .,
-#               family = "binomial",
-#               data = admit_train)
-#sapply(lapply(data_factored, unique), length)
-#sapply(data_factored, typeof)
+              data = admit_train, na.action = na.exclude)
+
 coef(glm_fit)
 
-fitted_probabilities = predict(glm_fit,
+fitted_probabilities_glm = predict(glm_fit,
         newdata = admit_test,
         type = "response") # to get output on probability scale head(fitted_probabilities)
 
-predictions = as.numeric(fitted_probabilities > 0.5)
+predictions_glm = as.numeric(fitted_probabilities_glm > 0.5)
 
 admit_test_pred = admit_test %>%
-  mutate(predicted_admit = predictions)
+  mutate(predicted_admit_glm = predictions_glm)
 
 # then calculate misclassification rate
 admit_test_pred %>%
-    summarise(mean(ADMITHOS != predicted_admit))
+    summarise(mean(ADMITHOS != predicted_admit_glm))
 
 #confusion matrix
 admit_test_pred %>%
-  select(ADMITHOS, predicted_admit) %>%
+  select(ADMITHOS, predicted_admit_glm) %>%
   table()
-
-
-sapply(admit_test_pred, function(x) sum(is.na(x)))
 
 ```
 ```{r}
 # ROC Curve
-# ROC curve
 roc_data = roc(admit_test %>% pull(ADMITHOS),
                fitted_probabilities)
 tibble(FPR = 1-roc_data$specificities,
@@ -282,7 +310,7 @@ roc_data$auc
 ```
 ```{r}
 admit_train %>%
-  ggplot(aes(x = ABG, y = ADMITHOS))+
+  ggplot(aes(x = CBC, y = ADMITHOS))+
   geom_jitter(height = .05) +
   geom_smooth(method = "glm",
               formula = "y~x",
@@ -292,10 +320,100 @@ admit_train %>%
   theme_bw()
 ```
 
+### Ridge logistic regression
 
+```{r}
+ridge_fit = cv.glmnet(ADMITHOS ~ .,
+                      alpha = 0, # alpha = 0 means ridge
+                      nfolds = 10, # number of CV folds
+                      family = "binomial", # to specify logistic regression
+                      type.measure = "class", # use misclassification error in CV 
+                      data = admit_train) # train on admit_train data
+plot(ridge_fit)
+plot_glmnet(ridge_fit, admit_train, features_to_plot = 4)
+```
+```{r}
+# Making predictions using ridge logistic regression
+fitted_probabilities_ridge = predict(ridge_fit,
+        newdata = admit_test,
+        s = "lambda.1se",
+        type = "response") # to get output on probability scale 
+head(fitted_probabilities_ridge)
 
+predictions_ridge = as.numeric(fitted_probabilities_ridge > 0.5)
 
+admit_test_pred = admit_test %>%
+  mutate(predicted_admit_ridge = predictions_ridge)
 
+# then calculate misclassification rate
+admit_test_pred %>%
+    summarise(mean(ADMITHOS != predicted_admit_ridge))
+```
+
+### Lasso logistic regression
+
+```{r}
+lasso_fit = cv.glmnet(ADMITHOS ~ ., # formula notation, as usual
+                      alpha = 1, # alpha = 1 for lasso
+                      nfolds = 10, # number of folds
+                      family = "binomial", # to specify logistic regression
+                      type.measure = "class", # use misclassification error in CV 
+                      data = admit_train) # data to run lasso on
+```
+
+```{r}
+plot(lasso_fit)
+plot_glmnet(lasso_fit, admit_train, features_to_plot = 4)
+```
+
+```{r}
+# Making predictions
+lasso_predictions = predict(lasso_fit, 
+                            newdata = admit_test,
+                            s = "lambda.1se") %>% as.numeric()
+lasso_predictions = as.numeric(lasso_predictions > 0.5)
+
+admit_test_pred = admit_test %>%
+  mutate(predicted_admit_lasso = lasso_predictions)
+
+# then calculate misclassification rate
+admit_test_pred %>%
+    summarise(mean(ADMITHOS != predicted_admit_lasso))
+```
+
+### Elastic net regression
+
+```{r}
+elnet_fit = cv.glmnet(ADMITHOS ~ ., # formula notation, as usual
+                      nfolds = 10, # number of folds
+                  #    family = "binomial", # to specify logistic regression
+                    #  type.measure = "class", # use misclassification error in CV 
+                      data = admit_train) # data to run elnet on
+elnet_fit$alpha
+plot_cva_glmnet(elnet_fit)
+elnet_fit_best = extract_best_elnet(elnet_fit)
+elnet_fit_best$alpha
+```
+
+```{r}
+plot(elnet_fit_best)
+plot_glmnet(elnet_fit_best, admit_train, features_to_plot = 6)
+```
+
+```{r}
+# Making predictions
+elnet_predictions = predict(elnet_fit, 
+                            newdata = admit_test,
+                            s = "lambda.1se") %>% as.numeric()
+elnet_predictions = as.numeric(elnet_predictions > 0.5)
+
+admit_test_pred = admit_test %>%
+  mutate(predicted_admit_elnet = elnet_predictions)
+
+# then calculate misclassification rate
+admit_test_pred %>%
+    summarise(mean(ADMITHOS != predicted_admit_elnet))
+```
 
 ### Trees
 
