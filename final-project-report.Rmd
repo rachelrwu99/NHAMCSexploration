@@ -70,7 +70,7 @@ head(data_2015)
 ```{r, eval=FALSE}
 data_raw = bind_rows(data_2015, data_2016, data_2017, data_2018, data_2019)
 head(data_raw)
-#View(data_raw)
+data_raw
 ```
 #Clean missing data and delete variables with too few entries
 ```{r}
@@ -79,14 +79,11 @@ head(data_raw)
                 #nrow(data_clean_delete_var[data_clean_delete_var$PRDIAG2==-7, ])
       #Fill in means line 162
 
-
-
-
-
 #Notes: -7 codes for Not Applicable, -9 codes for Blank, "Blank"
+
 #order columns alphabetically
 data_raw_ordered = data_raw[,order(colnames(data_raw))]
-#Imput missing data
+#Impute missing data
 data_clean_delete_missing <- data_raw_ordered[!(data_raw_ordered$ADMDIV < 0 | #controversial to keep
                                                   data_raw_ordered$AMBTRANSFER < 0 | #controversial to keep
                                                   data_raw_ordered$RESIDNCE < 0 |
@@ -198,6 +195,11 @@ data_factored$PRESCR2 <- as.numeric(data_factored$PRESCR2)
 data_factored$PRESCR2[is.na(data_factored$PRESCR2)] <- 0
 data_factored$PRESCR1 <- as.factor(data_factored$PRESCR1)
 data_factored$PRESCR2 <- as.factor(data_factored$PRESCR2) 
+
+# dropping rows with NA values
+data_factored = data_factored %>%
+  drop_na()
+
 ```
 
 Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
@@ -212,12 +214,12 @@ admit_test = data_factored %>% filter(!(row_number() %in% train_samples))
 ## Data Description and Exploration
 **Our response variable is ADMITHOS, which is a categorical variable assigned a 1 if the patient was admitted to this hospital and 0 if they were not admitted. We have several similar variables that tell us information on patient disposition, ie where a patient went after appearing at the hospital. OBSHOS (indicating patients were admitted to the hospital after observation in the emergency department), TRANPYSC (patient transferred to a psychiatric hospital), and TRANOTH (patient was transferred to another hospital) were also variables that indicate the patient experienced additional care after being seen in the emergency department. However, we decided to focus only on ADMITHOS because of the clarity of the variable compared to the other potential response variables. TRANPYSC could indicate the patient went to a pyschiatric hospital but may not have been admitted to that hospital; the same concern plagues the TRANOTH variable. OBSHOS is also binary and for every positive OBSHOS observed, there is also a positive ADMITHOS value for that given patient, so we**
 ```{r}
-data_raw %>%
+admit_train %>%
   group_by(ADMITHOS) %>%
   summarise(cnt = n()) %>%
   mutate(freq = round(cnt / sum(cnt), 3))
 ```
-**Around 9.9% of people were admitted to the hospital.**
+**Around 10.9% of people were admitted to the hospital.**
 
 ## Model Building, Evaluation, and Interpretation
 
@@ -227,10 +229,11 @@ data_raw %>%
 ```{r}
 admit_train
 ```
+
 ```{r}
 glm_fit = glm(ADMITHOS ~ .,
               family = "binomial",
-              data = admit_train[1:45], na.action = na.exclude)
+              data = admit_train[1:50], na.action = na.exclude)
 # glm_fit = glm(ADMITHOS ~ .,
 #               family = "binomial",
 #               data = admit_train)
@@ -255,7 +258,10 @@ admit_test_pred %>%
 admit_test_pred %>%
   select(ADMITHOS, predicted_admit) %>%
   table()
- 
+
+
+sapply(admit_test_pred, function(x) sum(is.na(x)))
+
 ```
 ```{r}
 # ROC Curve
