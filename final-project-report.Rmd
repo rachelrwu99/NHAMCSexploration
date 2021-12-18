@@ -81,7 +81,6 @@ data_raw
 #THINGS TO DO: CTCONTRAST LEAVE IN OR OUT, DIAG2R TAKE OUT -9 ROWS OR SCRAP WHOLE COLUMN?
       #Do we keep PRDIAG2 & 3? check with
                 #nrow(data_clean_delete_var[data_clean_delete_var$PRDIAG2==-7, ])
-      #Fill in means line 162
 
 #Notes: -7 codes for Not Applicable, -9 codes for Blank, "Blank"
 
@@ -146,14 +145,6 @@ col_names <- names(data_factored)
 data_factored[,col_names] <- lapply(data_factored[,col_names] , as.factor)
 
 data_factored[ ,keep_double] <- lapply(data_factored[ , keep_double], as.numeric)
-
-# job_clean <- job_satisfaction %>% mutate(income = ordered(Income, 
-#         c(levels=c("<5000", "5000-15000", "15000-25000", ">25000")))) %>% 
-#   mutate(job = ordered(Satisfaction,
-#         levels=c("Very Dissatisfied", "A Little Satisfied", 
-#                  "Moderately Satisfied", "Very Satisfied"))) %>%
-#   mutate(Gender = ordered(Gender, levels=c("Female", "Male")))
-
 ```
 ### Imputing means
 ```{r}
