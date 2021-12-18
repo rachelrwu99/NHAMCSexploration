@@ -36,6 +36,8 @@ library(ggcorrplot)
 library(glmnetUtils)
 library(rpart) # install.packages("rpart")
 library(rpart.plot) # install.packages("rpart.plot")
+library(randomForest) # install.packages("randomForest")
+library(gbm) # install.packages("gbm")
 ```
 
 ## Downloading Data
@@ -469,7 +471,121 @@ mean(pred != admit_test$ADMITHOS)
 
 #### Random Forests
 
+```{r}
+rf_fit = randomForest(factor(ADMITHOS) ~ ., data = admit_train)
+plot(rf_fit)
+rf_fit$err.rate %>% head()
 
+tibble(oob_error = rf_fit$err.rate[,"OOB"],
+       trees = 1:500) %>%
+  ggplot(aes(x = trees, y = oob_error)) + geom_line() + theme_bw()
+```
+
+```{r}
+# Varying mtry
+rf_3 = randomForest(factor(ADMITHOS) ~ ., mtry = 3, data = admit_train)
+rf_7 = randomForest(factor(ADMITHOS) ~ ., mtry = 7, data = admit_train)
+rf_13 = randomForest(factor(ADMITHOS) ~ ., mtry = 13, data = admit_train)
+oob_errors = bind_rows(
+  tibble(ntree = 1:500, oob_err = rf_3$err.rate[,"OOB"], m = 3),
+  tibble(ntree = 1:500, oob_err = rf_7$err.rate[,"OOB"], m = 7),
+  tibble(ntree = 1:500, oob_err = rf_13$err.rate[,"OOB"], m = 13)
+)
+oob_errors %>%
+  ggplot(aes(x = ntree, y = oob_err, colour = factor(m))) +
+  geom_line() + theme_bw()
+
+# Variable importance plot
+rf_fit = randomForest(factor(ADMITHOS) ~ ., importance = TRUE, data = admit_train)
+varImpPlot(rf_fit)
+```
+```{r}
+# Making predictions
+rf_predictions = predict(rf_13, #n.trees = optimal_num_trees,
+                            type = "response", newdata = admit_test)
+
+mean(rf_predictions != admit_test$ADMITHOS)
+```
+
+#### Boosting 
+
+```{r}
+set.seed(1)
+
+# Setting binary response variable to 0 - 1, NOT as a factor
+admit_train$ADMITHOS <- as.numeric(admit_train$ADMITHOS) 
+
+#admit_train
+
+gbm_fit = gbm(ADMITHOS ~ .,
+              distribution = "bernoulli",
+              n.trees = 100,
+              interaction.depth = 1,
+              shrinkage = 0.1,
+              cv.folds = 5,
+              data = admit_train)
+
+gbm.perf(gbm_fit)
+```
+
+```{r}
+# try a few values
+set.seed(1)
+gbm_fit_1 = gbm(ADMITHOS ~ .,
+  distribution = "bernoulli",
+  n.trees = 100,
+  interaction.depth = 1,
+  shrinkage = 0.1,
+  cv.folds = 5,
+  data = admit_train)
+set.seed(1)
+gbm_fit_2 = gbm(ADMITHOS ~ .,
+  distribution = "bernoulli",
+  n.trees = 100,
+  interaction.depth = 2,
+  shrinkage = 0.1,
+  cv.folds = 5,
+  data = admit_train)
+set.seed(1)
+gbm_fit_3 = gbm(ADMITHOS ~ .,
+  distribution = "bernoulli",
+  n.trees = 100,
+  interaction.depth = 3,
+  shrinkage = 0.1,
+  cv.folds = 5,
+  data = admit_train)
+# extract CV errors
+ntrees = 100
+cv_errors = bind_rows(tibble(ntree = 1:ntrees, cv_err = gbm_fit_1$cv.error, depth = 1),
+tibble(ntree = 1:ntrees, cv_err = gbm_fit_2$cv.error, depth = 2),
+tibble(ntree = 1:ntrees, cv_err = gbm_fit_3$cv.error, depth = 3)
+)
+# plot CV errors
+cv_errors %>%
+ggplot(aes(x = ntree, y = cv_err, colour = factor(depth))) +
+geom_line() + theme_bw()
+0.8
+```
+
+```{r}
+gbm_fit_optimal = gbm_fit_1
+optimal_num_trees = gbm.perf(gbm_fit_1, plot.it = FALSE)
+summary(gbm_fit_optimal, n.trees = optimal_num_trees, plotit = FALSE)
+plot(gbm_fit_optimal, i.var = "ChestPain", n.trees = optimal_num_trees, type = "response")
+plot(gbm_fit_optimal, i.var = "Chol", n.trees = optimal_num_trees, type = "response")
+```
+
+```{r}
+# Making predictions 
+
+gbm_probabilities = predict(gbm_fit_optimal, n.trees = optimal_num_trees,
+                            type = "response", newdata = admit_test)
+gbm_probabilities
+
+gbm_predictions = as.numeric(gbm_probabilities > 0.5)
+
+mean(gbm_predictions != admit_test$ADMITHOS)
+```
 
 ## Conclusions
 
