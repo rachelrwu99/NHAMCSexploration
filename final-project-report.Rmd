@@ -19,7 +19,7 @@ urlcolor: blue
 
 ## Introduction
 
-## Downloading Data
+
 ```{r, message = FALSE}
 library(keras)         # to train neural networks
 library(kableExtra)    # to print tables
@@ -34,8 +34,11 @@ library(haven)
 library(corrplot)
 library(ggcorrplot)
 library(glmnetUtils)
+library(rpart) # install.packages("rpart")
+library(rpart.plot) # install.packages("rpart.plot")
 ```
 
+## Downloading Data
 ```{r}
 
 url_2019 = "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/dataset_documentation/nhamcs/stata/ED2019-stata.zip"
@@ -217,7 +220,7 @@ admit_train %>%
   summarise(cnt = n()) %>%
   mutate(freq = round(cnt / sum(cnt), 3))
 ```
-**Around 10.9% of people were admitted to the hospital.**
+**Around 10.6% of people were admitted to the hospital.**
 ```{r}
 # correlation matrix
 corr_simple <- function(data=df,sig=0.3){
@@ -286,7 +289,7 @@ admit_test_pred %>%
 ```{r}
 # ROC Curve
 roc_data = roc(admit_test %>% pull(ADMITHOS),
-               fitted_probabilities)
+               fitted_probabilities_glm)
 tibble(FPR = 1-roc_data$specificities,
        TPR = roc_data$sensitivities) %>%
   ggplot(aes(x = FPR, y = TPR)) +
@@ -375,10 +378,10 @@ admit_test_pred %>%
 ### Elastic net regression
 
 ```{r}
-elnet_fit = cv.glmnet(ADMITHOS ~ ., # formula notation, as usual
+elnet_fit = cva.glmnet(ADMITHOS ~ ., # formula notation, as usual
                       nfolds = 10, # number of folds
-                  #    family = "binomial", # to specify logistic regression
-                    #  type.measure = "class", # use misclassification error in CV 
+                      family = "binomial", # to specify logistic regression
+                      type.measure = "class", # use misclassification error in CV 
                       data = admit_train) # data to run elnet on
 elnet_fit$alpha
 plot_cva_glmnet(elnet_fit)
@@ -395,6 +398,7 @@ plot_glmnet(elnet_fit_best, admit_train, features_to_plot = 6)
 # Making predictions
 elnet_predictions = predict(elnet_fit, 
                             newdata = admit_test,
+                            alpha = elnet_fit$alpha,
                             s = "lambda.1se") %>% as.numeric()
 elnet_predictions = as.numeric(elnet_predictions > 0.5)
 
@@ -408,7 +412,64 @@ admit_test_pred %>%
 
 ### Trees
 
-### CNN
+#### Unpruned Decision Tree
+
+```{r}
+tree_fit = rpart(ADMITHOS ~ .,
+                 method = "class", # classification
+                 parms = list(split = "gini"), # Gini index for splitting
+                 data = admit_train)
+rpart.plot(tree_fit)
+```
+
+```{r}
+pred_tree = predict(tree_fit, newdata = admit_test, type = "class")
+
+# confusion matrix
+table(pred_tree, truth = admit_test$ADMITHOS)
+
+# misclassification error
+mean(pred_tree != admit_test$ADMITHOS)
+```
+
+#### Pruned Decision Tree
+
+```{r}
+# CP Table
+printcp(tree_fit)
+cp_table = printcp(tree_fit) %>% as_tibble()
+
+cp_table %>%
+  ggplot(aes(x = nsplit+1, y = xerror,
+  ymin = xerror - xstd, ymax = xerror + xstd)) +
+  geom_point() + geom_line() +
+  geom_errorbar(width = 0.2) +
+  xlab("Number of terminal nodes") + ylab("CV error") +
+  geom_hline(aes(yintercept = min(xerror)), linetype = "dashed") +
+  theme_bw()
+```
+
+```{r}
+# Produce optimal tree
+optimal_tree_info = cp_table %>%
+  filter(xerror - xstd < min(xerror)) %>%
+  arrange(nsplit) %>%
+  head(1)
+optimal_tree_info
+
+optimal_tree = prune(tree_fit, cp = optimal_tree_info$CP)
+rpart.plot(optimal_tree)
+```
+
+```{r}
+# Predict using optimal tree
+pred = predict(optimal_tree, newdata = admit_test, type = "class")
+mean(pred != admit_test$ADMITHOS)
+```
+
+#### Random Forests
+
+
 
 ## Conclusions
 
