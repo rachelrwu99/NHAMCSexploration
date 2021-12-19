@@ -200,16 +200,42 @@ Below are the 159 features we used for analysis. Words written in parentheses re
 
 **Diagnostic Services:** 
 
+  - Any imaging (`ANYIMAGE`)
   - Arterial blood gases (`ABG`): laboratory test 
   - Blood alcohol concentration (`BAC`): 
   - Basic metabolic panel (`BMP`): 
-  - Brain natriuretic peptide (`BNP`): 
-  - Creatinine/Renal function panel (`BUNCREAT`):
+  - Blood culture (`BLOODCX`)
+  - Brain natriuretic peptide (`BNP`)
   - Cardiac Enzymes (`CARDENZ`):
+  - Cardiac Monitor (`CARDMON`)
   - Complete blood count (`CBC`): 
   - Comprehensive metabolic panel (`CMP`):
-  - Blood culture (`BLOODCX`):
-  - Blood culture (`BLOODCX`):
+  - Creatinine/Renal function panel (`BUNCREAT`)
+  - CT abdominal/pelvic scan (`CTAB`)
+  - CT chest scan (`CTCHEST`)
+  - CT head scan (`CTHEAD`)
+  - CT with IV contrast (`CTCONTRAST`)
+  - CT scan (`CATSCAN`)
+  - CT scan other (`CTOTHER`)
+  - CT scan site unspecified (`CTUNK`)
+  - Liver enzymes/Hepatic function panel (`LFT`)
+  - MRI (`MRI`)
+  - Other blood test (`OTHRBLD`)
+  - Other culture (`OTHCX`)
+  - Other imaging (`OTHIMAGE`)
+  - Other test/service (`OTHRTEST`)
+  - Pregnancy test (`PREGTEST`)
+  - Prothrombin time (`PTTINR`)
+  
+  - Throat culture (`TRTCX`)
+  - Toxicology screen (`TOXSCREN`)
+  - Ultrasound (`ULTRASND`)
+  - Urine dipstick (`URINE`)
+  - Urine culture (`URINECX`)
+  - Wound culture (`WOUNDCX`)
+  - 
+  - X-ray testing (`XRAY`)
+  
   
 
 **Measurements taken during Emergency Department Visit** 
