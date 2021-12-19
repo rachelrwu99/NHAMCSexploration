@@ -5,7 +5,6 @@ library(lubridate)                      # for dealing with dates
 library(tidyverse)
 library(ggplot2)
 
-
 # create age distribution plot
 
 data_factored %>%
@@ -38,3 +37,27 @@ ggsave(filename = "/Users/leo/Documents/University/Academic Plan/Fall 2021/STAT 
        width = 6, 
        height = 4)
 dev.off()
+
+# plot for hospital admittance by race
+race_admit = data_factored %>%
+  group_by(RACER, ADMITHOS) %>%
+  summarise(cnt = n()) %>%
+  mutate(admit_rate = formattable::percent(cnt / sum(cnt))) %>%
+  filter(ADMITHOS==1) %>%
+  cbind(race = c("Non-Hispanic White","Non-Hispanic Black", "Hispanic")) %>%
+  select(-c(ADMITHOS,cnt))# %>%
+  
+race_admit %>%
+  ggplot(aes(x = race, y = admit_rate)) +
+  labs(x = "Race", y="Hospital admittance rate") +
+  geom_bar(stat="identity") + 
+  theme_bw() + theme(legend.position = "none") +
+  geom_text(aes(label = admit_rate), vjust = -0.2)
+
+ggsave(filename = "/Users/leo/Documents/University/Academic Plan/Fall 2021/STAT 571/Final Project/NHAMCSexploration/results/race-admit-plot.png", 
+       plot = last_plot(), 
+       device = "png", 
+       width = 6, 
+       height = 4)
+dev.off()
+
