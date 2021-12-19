@@ -95,3 +95,8 @@ data_factored$PRESCR2 <- as.factor(data_factored$PRESCR2)
 # dropping rows with NA values
 data_factored = data_factored %>%
   drop_na()
+
+####### SPLIT INTO TRAINING AND TEST HERE ############
+train_samples = sample(1:nrow(data_factored), 0.8*nrow(data_factored))
+admit_train = data_factored %>% filter(row_number() %in% train_samples)
+admit_test = data_factored %>% filter(!(row_number() %in% train_samples))
