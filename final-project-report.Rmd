@@ -516,9 +516,9 @@ mean(rf_predictions != admit_test$ADMITHOS)
 set.seed(1)
 
 # Setting binary response variable to 0 - 1, NOT as a factor
-admit_train$ADMITHOS <- as.numeric(admit_train$ADMITHOS) 
+admit_train$ADMITHOS <- as.numeric(as.character(admit_train$ADMITHOS))
 
-#admit_train
+admit_train
 
 gbm_fit = gbm(ADMITHOS ~ .,
               distribution = "bernoulli",
@@ -567,15 +567,14 @@ tibble(ntree = 1:ntrees, cv_err = gbm_fit_3$cv.error, depth = 3)
 cv_errors %>%
 ggplot(aes(x = ntree, y = cv_err, colour = factor(depth))) +
 geom_line() + theme_bw()
-0.8
 ```
 
 ```{r}
 gbm_fit_optimal = gbm_fit_1
 optimal_num_trees = gbm.perf(gbm_fit_1, plot.it = FALSE)
 summary(gbm_fit_optimal, n.trees = optimal_num_trees, plotit = FALSE)
-plot(gbm_fit_optimal, i.var = "ChestPain", n.trees = optimal_num_trees, type = "response")
-plot(gbm_fit_optimal, i.var = "Chol", n.trees = optimal_num_trees, type = "response")
+plot(gbm_fit_optimal, i.var = "CONSULT", n.trees = optimal_num_trees, type = "response")
+plot(gbm_fit_optimal, i.var = "CBC", n.trees = optimal_num_trees, type = "response")
 ```
 
 ```{r}
@@ -583,7 +582,7 @@ plot(gbm_fit_optimal, i.var = "Chol", n.trees = optimal_num_trees, type = "respo
 
 gbm_probabilities = predict(gbm_fit_optimal, n.trees = optimal_num_trees,
                             type = "response", newdata = admit_test)
-gbm_probabilities
+#gbm_probabilities
 
 gbm_predictions = as.numeric(gbm_probabilities > 0.5)
 
