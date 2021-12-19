@@ -24,3 +24,17 @@ ggsave(filename = "/Users/leo/Documents/University/Academic Plan/Fall 2021/STAT 
        width = 6, 
        height = 4)
 dev.off()
+
+data_factored %>%
+  ggplot(aes(x = ADMITHOS)) +
+  labs(x = "Admitted to hospital", y = "Count") +
+  # add vertical line to indicate median age 
+  geom_bar(stat = "count") + 
+  theme_bw() + theme(legend.position = "none")
+
+ggsave(filename = "/Users/leo/Documents/University/Academic Plan/Fall 2021/STAT 571/Final Project/NHAMCSexploration/results/admit-distribution-plot.png", 
+       plot = last_plot(), 
+       device = "png", 
+       width = 6, 
+       height = 4)
+dev.off()
