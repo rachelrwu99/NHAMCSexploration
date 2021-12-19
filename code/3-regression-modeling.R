@@ -41,7 +41,7 @@ admit_test_pred50 = admit_test %>%
   mutate(predicted_admit_lasso = lasso50_predictions)
 
 # then calculate misclassification rate
-admit_test_pred50 %>%
+misclas_lasso = admit_test_pred50 %>%
   summarise(mean(ADMITHOS != predicted_admit_lasso))
 
 
@@ -86,5 +86,6 @@ admit_test_pred = admit_test %>%
   mutate(predicted_admit_ridge = predictions_ridge)
 
 # then calculate misclassification rate
-admit_test_pred %>%
+misclas_ridge = admit_test_pred %>%
   summarise(mean(ADMITHOS != predicted_admit_ridge))
+#ridge_misclas <- misclas_ridge[1]
