@@ -194,6 +194,10 @@ Furthermore, this data set precedes the COVID-19 pandemic and does not illustrat
 
 Below are the 159 features we used for analysis. Words written in parentheses represent variable names. Unless noted otherwise, all variables are categorical. 
 
+**Patient Medical History**
+
+  - Alzheimer's/Dementia (`ALZHD`)
+
 **Diagnostic Services:** 
 
   - Any imaging (`ANYIMAGE`)
@@ -246,8 +250,6 @@ Below are the 159 features we used for analysis. Words written in parentheses re
   - Other procedure (`OTHPROC`)
   - Were procedures provided at this visit? (`PROC`)
   - Total number of procedures provided (`TOTPROC`): range of 0-6
-
-**Measurements taken during Emergency Department Visit** 
 
 **Medications** 
   - Were medications given at this visit? (`MED`)
