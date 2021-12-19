@@ -19,7 +19,7 @@ urlcolor: blue
 
 ## Introduction
 
-## Downloading Data
+
 ```{r, message = FALSE}
 library(keras)         # to train neural networks
 library(kableExtra)    # to print tables
@@ -34,8 +34,13 @@ library(haven)
 library(corrplot)
 library(ggcorrplot)
 library(glmnetUtils)
+library(rpart) # install.packages("rpart")
+library(rpart.plot) # install.packages("rpart.plot")
+library(randomForest) # install.packages("randomForest")
+library(gbm) # install.packages("gbm")
 ```
 
+## Downloading Data
 ```{r}
 
 url_2019 = "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/dataset_documentation/nhamcs/stata/ED2019-stata.zip"
@@ -81,7 +86,6 @@ data_raw
 #THINGS TO DO: CTCONTRAST LEAVE IN OR OUT, DIAG2R TAKE OUT -9 ROWS OR SCRAP WHOLE COLUMN?
       #Do we keep PRDIAG2 & 3? check with
                 #nrow(data_clean_delete_var[data_clean_delete_var$PRDIAG2==-7, ])
-      #Fill in means line 162
 
 #Notes: -7 codes for Not Applicable, -9 codes for Blank, "Blank"
 
@@ -146,14 +150,6 @@ col_names <- names(data_factored)
 data_factored[,col_names] <- lapply(data_factored[,col_names] , as.factor)
 
 data_factored[ ,keep_double] <- lapply(data_factored[ , keep_double], as.numeric)
-
-# job_clean <- job_satisfaction %>% mutate(income = ordered(Income, 
-#         c(levels=c("<5000", "5000-15000", "15000-25000", ">25000")))) %>% 
-#   mutate(job = ordered(Satisfaction,
-#         levels=c("Very Dissatisfied", "A Little Satisfied", 
-#                  "Moderately Satisfied", "Very Satisfied"))) %>%
-#   mutate(Gender = ordered(Gender, levels=c("Female", "Male")))
-
 ```
 ### Imputing means
 ```{r}
@@ -226,7 +222,7 @@ admit_train %>%
   summarise(cnt = n()) %>%
   mutate(freq = round(cnt / sum(cnt), 3))
 ```
-**Around 10.9% of people were admitted to the hospital.**
+**Around 10.6% of people were admitted to the hospital.**
 ```{r}
 # correlation matrix
 corr_simple <- function(data=df,sig=0.3){
@@ -295,7 +291,7 @@ admit_test_pred %>%
 ```{r}
 # ROC Curve
 roc_data = roc(admit_test %>% pull(ADMITHOS),
-               fitted_probabilities)
+               fitted_probabilities_glm)
 tibble(FPR = 1-roc_data$specificities,
        TPR = roc_data$sensitivities) %>%
   ggplot(aes(x = FPR, y = TPR)) +
@@ -384,10 +380,13 @@ admit_test_pred %>%
 ### Elastic net regression
 
 ```{r}
-elnet_fit = cv.glmnet(ADMITHOS ~ ., # formula notation, as usual
+elnet_fit = cva.glmnet(ADMITHOS ~ ., # formula notation, as usual
                       nfolds = 10, # number of folds
                       family = "binomial", # to specify logistic regression
+
                     #  type.measure = "class", # use misclassification error in CV 
+                      type.measure = "class", # use misclassification error in CV 
+
                       data = admit_train) # data to run elnet on
 elnet_fit$alpha
 plot_cva_glmnet(elnet_fit)
@@ -404,6 +403,7 @@ plot_glmnet(elnet_fit_best, admit_train, features_to_plot = 6)
 # Making predictions
 elnet_predictions = predict(elnet_fit, 
                             newdata = admit_test,
+                            alpha = elnet_fit$alpha,
                             s = "lambda.1se") %>% as.numeric()
 elnet_predictions = as.numeric(elnet_predictions > 0.5)
 
@@ -417,7 +417,178 @@ admit_test_pred %>%
 
 ### Trees
 
-### CNN
+#### Unpruned Decision Tree
+
+```{r}
+tree_fit = rpart(ADMITHOS ~ .,
+                 method = "class", # classification
+                 parms = list(split = "gini"), # Gini index for splitting
+                 data = admit_train)
+rpart.plot(tree_fit)
+```
+
+```{r}
+pred_tree = predict(tree_fit, newdata = admit_test, type = "class")
+
+# confusion matrix
+table(pred_tree, truth = admit_test$ADMITHOS)
+
+# misclassification error
+mean(pred_tree != admit_test$ADMITHOS)
+```
+
+#### Pruned Decision Tree
+
+```{r}
+# CP Table
+printcp(tree_fit)
+cp_table = printcp(tree_fit) %>% as_tibble()
+
+cp_table %>%
+  ggplot(aes(x = nsplit+1, y = xerror,
+  ymin = xerror - xstd, ymax = xerror + xstd)) +
+  geom_point() + geom_line() +
+  geom_errorbar(width = 0.2) +
+  xlab("Number of terminal nodes") + ylab("CV error") +
+  geom_hline(aes(yintercept = min(xerror)), linetype = "dashed") +
+  theme_bw()
+```
+
+```{r}
+# Produce optimal tree
+optimal_tree_info = cp_table %>%
+  filter(xerror - xstd < min(xerror)) %>%
+  arrange(nsplit) %>%
+  head(1)
+optimal_tree_info
+
+optimal_tree = prune(tree_fit, cp = optimal_tree_info$CP)
+rpart.plot(optimal_tree)
+```
+
+```{r}
+# Predict using optimal tree
+pred = predict(optimal_tree, newdata = admit_test, type = "class")
+mean(pred != admit_test$ADMITHOS)
+```
+
+#### Random Forests
+
+```{r}
+rf_fit = randomForest(factor(ADMITHOS) ~ ., data = admit_train)
+plot(rf_fit)
+rf_fit$err.rate %>% head()
+
+tibble(oob_error = rf_fit$err.rate[,"OOB"],
+       trees = 1:500) %>%
+  ggplot(aes(x = trees, y = oob_error)) + geom_line() + theme_bw()
+```
+
+```{r}
+# Varying mtry
+rf_3 = randomForest(factor(ADMITHOS) ~ ., mtry = 3, data = admit_train)
+rf_7 = randomForest(factor(ADMITHOS) ~ ., mtry = 7, data = admit_train)
+rf_13 = randomForest(factor(ADMITHOS) ~ ., mtry = 13, data = admit_train)
+oob_errors = bind_rows(
+  tibble(ntree = 1:500, oob_err = rf_3$err.rate[,"OOB"], m = 3),
+  tibble(ntree = 1:500, oob_err = rf_7$err.rate[,"OOB"], m = 7),
+  tibble(ntree = 1:500, oob_err = rf_13$err.rate[,"OOB"], m = 13)
+)
+oob_errors %>%
+  ggplot(aes(x = ntree, y = oob_err, colour = factor(m))) +
+  geom_line() + theme_bw()
+
+# Variable importance plot
+rf_fit = randomForest(factor(ADMITHOS) ~ ., importance = TRUE, data = admit_train)
+varImpPlot(rf_fit)
+```
+```{r}
+# Making predictions
+rf_predictions = predict(rf_13, #n.trees = optimal_num_trees,
+                            type = "response", newdata = admit_test)
+
+mean(rf_predictions != admit_test$ADMITHOS)
+```
+
+#### Boosting 
+
+```{r}
+set.seed(1)
+
+# Setting binary response variable to 0 - 1, NOT as a factor
+admit_train$ADMITHOS <- as.numeric(admit_train$ADMITHOS) 
+
+#admit_train
+
+gbm_fit = gbm(ADMITHOS ~ .,
+              distribution = "bernoulli",
+              n.trees = 100,
+              interaction.depth = 1,
+              shrinkage = 0.1,
+              cv.folds = 5,
+              data = admit_train)
+
+gbm.perf(gbm_fit)
+```
+
+```{r}
+# try a few values
+set.seed(1)
+gbm_fit_1 = gbm(ADMITHOS ~ .,
+  distribution = "bernoulli",
+  n.trees = 100,
+  interaction.depth = 1,
+  shrinkage = 0.1,
+  cv.folds = 5,
+  data = admit_train)
+set.seed(1)
+gbm_fit_2 = gbm(ADMITHOS ~ .,
+  distribution = "bernoulli",
+  n.trees = 100,
+  interaction.depth = 2,
+  shrinkage = 0.1,
+  cv.folds = 5,
+  data = admit_train)
+set.seed(1)
+gbm_fit_3 = gbm(ADMITHOS ~ .,
+  distribution = "bernoulli",
+  n.trees = 100,
+  interaction.depth = 3,
+  shrinkage = 0.1,
+  cv.folds = 5,
+  data = admit_train)
+# extract CV errors
+ntrees = 100
+cv_errors = bind_rows(tibble(ntree = 1:ntrees, cv_err = gbm_fit_1$cv.error, depth = 1),
+tibble(ntree = 1:ntrees, cv_err = gbm_fit_2$cv.error, depth = 2),
+tibble(ntree = 1:ntrees, cv_err = gbm_fit_3$cv.error, depth = 3)
+)
+# plot CV errors
+cv_errors %>%
+ggplot(aes(x = ntree, y = cv_err, colour = factor(depth))) +
+geom_line() + theme_bw()
+0.8
+```
+
+```{r}
+gbm_fit_optimal = gbm_fit_1
+optimal_num_trees = gbm.perf(gbm_fit_1, plot.it = FALSE)
+summary(gbm_fit_optimal, n.trees = optimal_num_trees, plotit = FALSE)
+plot(gbm_fit_optimal, i.var = "ChestPain", n.trees = optimal_num_trees, type = "response")
+plot(gbm_fit_optimal, i.var = "Chol", n.trees = optimal_num_trees, type = "response")
+```
+
+```{r}
+# Making predictions 
+
+gbm_probabilities = predict(gbm_fit_optimal, n.trees = optimal_num_trees,
+                            type = "response", newdata = admit_test)
+gbm_probabilities
+
+gbm_predictions = as.numeric(gbm_probabilities > 0.5)
+
+mean(gbm_predictions != admit_test$ADMITHOS)
+```
 
 ## Conclusions
 
