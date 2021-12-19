@@ -88,7 +88,13 @@ corr_simple <- function(data=df,sig=0.5){
   mtx_corr <- reshape2::acast(corr, Var1~Var2, value.var="Freq")
   
   #plot correlations visually
-  corrplot(mtx_corr, is.corr=FALSE, tl.col="black", na.label=" ")
+  corrplot(mtx_corr, is.corr=FALSE, tl.col="black", tl.cex = 0.5, na.label=" ")
 }
-
+png(width = 6, 
+    height = 4,
+    res = 300,
+    units = "in", 
+    filename = 
+      "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/correlation_matrix.png")
 corr_simple(admit_train)
+dev.off()
