@@ -521,7 +521,7 @@ admit_train
 
 gbm_fit = gbm(ADMITHOS ~ .,
               distribution = "bernoulli",
-              n.trees = 100,
+              n.trees = 1000,
               interaction.depth = 1,
               shrinkage = 0.1,
               cv.folds = 5,
@@ -533,7 +533,7 @@ gbm.perf(gbm_fit)
 ```{r}
 # try a few values
 set.seed(1)
-ntrees = 500
+ntrees = 1000
 gbm_fit_1 = gbm(ADMITHOS ~ .,
   distribution = "bernoulli",
   n.trees = ntrees,
