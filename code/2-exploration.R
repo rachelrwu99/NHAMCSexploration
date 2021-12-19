@@ -25,10 +25,10 @@ ggsave(filename = "/Users/leo/Documents/University/Academic Plan/Fall 2021/STAT 
        height = 4)
 dev.off()
 
+# plot for response variable ADMITHOS
 data_factored %>%
   ggplot(aes(x = ADMITHOS)) +
   labs(x = "Admitted to hospital", y = "Count") +
-  # add vertical line to indicate median age 
   geom_bar(stat = "count") + 
   theme_bw() + theme(legend.position = "none")
 
