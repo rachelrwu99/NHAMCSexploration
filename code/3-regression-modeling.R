@@ -79,7 +79,6 @@ fitted_probabilities_ridge = predict(ridge_fit,
                                      newdata = admit_test,
                                      s = "lambda.1se",
                                      type = "response") # to get output on probability scale 
-head(fitted_probabilities_ridge)
 
 predictions_ridge = as.numeric(fitted_probabilities_ridge > 0.5)
 
