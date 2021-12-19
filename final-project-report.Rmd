@@ -573,7 +573,7 @@ gbm_fit_optimal = gbm_fit_1
 optimal_num_trees = gbm.perf(gbm_fit_1, plot.it = FALSE)
 summary(gbm_fit_optimal, n.trees = optimal_num_trees, plotit = FALSE)
 plot(gbm_fit_optimal, i.var = "CONSULT", n.trees = optimal_num_trees, type = "response")
-plot(gbm_fit_optimal, i.var = "CBC", n.trees = optimal_num_trees, type = "response")
+plot(gbm_fit_optimal, i.var = "AGE", n.trees = optimal_num_trees, type = "response")
 ```
 
 ```{r}
