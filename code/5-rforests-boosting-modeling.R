@@ -1,11 +1,29 @@
 ########### Random Forests ########
-rf_fit = randomForest(factor(ADMITHOS) ~ ., data = admit_train)
+rf_fit = randomForest(factor(ADMITHOS) ~ AGE + AMBTRANSFER + ANYIMAGE + ARREMS + ATTPHYS + 
+                        BMP + BNP + BOARDHOS + BPAP + BPDIAS + BPSYS + 
+                        CAD + CHF + CKD + CMP + COPD +
+                        CPR + CTAB + CTCHEST + CTHEAD + CTOTHER +
+                        CTUNK + DDIMER + CARDMON + CBC + CONSULT + 
+                        CATRIAGE + DIABTYP1 + DIABTYP2 + DIABTYP0 +
+                        NUMMED + NUMGIV + PAINSCALE + PAYTYPER + POPCT + 
+                        PROC +  PULSE + RACER + RACERETH + RACEUN + 
+                        REGION + RESIDNCE + NURSEPR + RESPR + 
+                        SEEN72 + RNLPN, 
+                      data = admit_train)
 plot(rf_fit)
 rf_fit$err.rate %>% head()
 
+save(rf_fit, file = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/rand_forest_fit.Rda")
+# create error graph
+png(width = 6, 
+    height = 4,
+    res = 300,
+    units = "in", 
+    filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/rand_forest_error.png")
 tibble(oob_error = rf_fit$err.rate[,"OOB"],
        trees = 1:500) %>%
   ggplot(aes(x = trees, y = oob_error)) + geom_line() + theme_bw()
+dev.off()
 
 # Varying mtry
 rf_3 = randomForest(factor(ADMITHOS) ~ ., mtry = 3, data = admit_train)
@@ -16,21 +34,46 @@ oob_errors = bind_rows(
   tibble(ntree = 1:500, oob_err = rf_7$err.rate[,"OOB"], m = 7),
   tibble(ntree = 1:500, oob_err = rf_13$err.rate[,"OOB"], m = 13)
 )
+
+# create plot
+png(width = 6, 
+    height = 4,
+    res = 300,
+    units = "in", 
+    filename = 
+      "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/rand_forest_tuning.png")
 oob_errors %>%
   ggplot(aes(x = ntree, y = oob_err, colour = factor(m))) +
   geom_line() + theme_bw()
+dev.off()
+
 
 # Variable importance plot
-rf_fit = randomForest(factor(ADMITHOS) ~ ., importance = TRUE, data = admit_train)
-varImpPlot(rf_fit)
+rf_fitVarImp = randomForest(factor(ADMITHOS) ~ AGE + AMBTRANSFER + ANYIMAGE + ARREMS + ATTPHYS + 
+                        BMP + BNP + BOARDHOS + BPAP + BPDIAS + BPSYS + 
+                        CAD + CHF + CKD + CMP + COPD +
+                        CPR + CTAB + CTCHEST + CTHEAD + CTOTHER +
+                        CTUNK + DDIMER + CARDMON + CBC + CONSULT + 
+                        CATRIAGE + DIABTYP1 + DIABTYP2 + DIABTYP0 +
+                        NUMMED + NUMGIV + PAINSCALE + PAYTYPER + POPCT + 
+                        PROC +  PULSE + RACER + RACERETH + RACEUN + 
+                        REGION + RESIDNCE + NURSEPR + RESPR + 
+                        SEEN72 + RNLPN, importance = TRUE, data = admit_train)
+
+png(width = 9, 
+    height = 9,
+    res = 300,
+    units = "in", 
+    filename = 
+      "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/rand_forest_varImpPlot.png")
+varImpPlot(rf_fitVarImp, main = "Random Forest: Variable Importance Plot")
+dev.off()
 
 # Making predictions
 rf_predictions = predict(rf_13, #n.trees = optimal_num_trees,
                          type = "response", newdata = admit_test)
 
 misclas_rforest <- mean(rf_predictions != admit_test$ADMITHOS)
-
-
 
 
 ############# Boosting ###########
