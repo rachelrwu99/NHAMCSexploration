@@ -257,5 +257,12 @@ Below are the 159 features we used for analysis. Words written in parentheses re
   - Number of medications coded (`NUMMED`)
   
 **Providers seen**
+  - Consulting physician (`CONSULT`)
   - ED attending physician (`ATTPHYS`)
+  - ED resident or intern (`RESINT`)
+  - Mental health provider (`MHPROV`)
+  - Nurse practitioner (`NURSEPR`)
+  - Physician assistant (`PHYSASST`)
+  - Other provider (`OTHPROV`)
+  - RN or LPN (`RNLPN`)
   
