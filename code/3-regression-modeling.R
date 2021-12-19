@@ -45,7 +45,7 @@ admit_test_pred50 = admit_test %>%
 misclas_lasso = admit_test_pred50 %>%
   summarise(mean(ADMITHOS != predicted_admit_lasso))
 
-
+misclas_lassoHC <- 0.0871
 
 #############RIDGE########################
 ridge_fit = cv.glmnet(ADMITHOS ~ .,
@@ -89,7 +89,7 @@ admit_test_pred = admit_test %>%
 # then calculate misclassification rate
 misclas_ridge = admit_test_pred %>%
   summarise(mean(ADMITHOS != predicted_admit_ridge))
-
+misclas_ridgeHC <- 0.107
 ############# Elastic Net ######################
 elnet_fit = cva.glmnet(ADMITHOS ~ ., # formula notation, as usual
                        nfolds = 10, # number of folds
@@ -135,3 +135,4 @@ admit_test_pred = admit_test %>%
 # then calculate misclassification rate
 misclas_elastic <- admit_test_pred %>%
   summarise(mean(ADMITHOS != predicted_admit_elnet))
+misclas_elasticHC <- 0.0954

@@ -34,7 +34,7 @@ data_clean_delete_var <- data_clean_delete_char %>%
             HOSPCODE, LBTC, LWBS, MSA, OBSDIS, OBSHOS, 
             PATCODE, PATWT, PULSED, RACERFL, RESPRD, PTONLINEE1: PTONLINEE6,
             RFID, SEXFL, SETTYPE, TEMPDF, TRANNH, TRANOTH, TRANPSYC, VITALSD , YEAR,
-            BPDIASD, BPSYSD))
+            BPDIASD, BPSYSD, NOFU, RETREFFU, NODISP, OTHDISP))
 
 #Delete these variables with >90% NA or -9, no way to impute, ncol/variables 234 to 179
 #note SURGDAY is obsolete variable in 2018, so deleting

@@ -31,6 +31,7 @@ table(pred_tree, truth = admit_test$ADMITHOS)
 
 # misclassification error
 misclas_tree_unpruned <- mean(pred_tree != admit_test$ADMITHOS)
+misclas_tree_unprunedHC <- 0.1136929
 
 ################### Pruned decision tree ###############
 # CP Table
@@ -86,3 +87,4 @@ dev.off()
 # Predict using optimal tree
 pred = predict(optimal_tree, newdata = admit_test, type = "class")
 misclas_tree_pruned <- mean(pred != admit_test$ADMITHOS)
+misclas_tree_prunedHC <- 0.1120332

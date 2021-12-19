@@ -1,15 +1,9 @@
 ########### Random Forests ########
-rf_fit = randomForest(factor(ADMITHOS) ~ AGE + AMBTRANSFER + ANYIMAGE + ARREMS + ATTPHYS + 
-                        BMP + BNP + BOARDHOS + BPAP + BPDIAS + BPSYS + 
-                        CAD + CBC + CHF + CKD + CMP + COPD +
-                        CPR + CTAB + CTCHEST + CTHEAD + CTOTHER +
-                        CTUNK + DDIMER + CARDMON + CBC + CONSULT + 
-                        CATRIAGE + DIABTYP1 + DIABTYP2 + DIABTYP0 + NOFU +
-                        NUMMED + NUMGIV + PAINSCALE + PAYTYPER + POPCT + 
-                        PROC +  PTTINR + PULSE + RACER + RACERETH + RACEUN + RETREFFU +
-                        REGION + RESIDNCE + NURSEPR + RESPR + 
-                        SEEN72 + RNLPN + + TOTCHRON + TOTDIAG, 
-                      data = admit_train)
+subset_admit_train <- admit_train %>%
+  select( -DIAG1R, -DIAG2R, -LOV, -RFV1, -MED1, - BPDIAS, -BPSYS, -CONTSUB2,
+          -RFV13D, -RFV2, -RFV23D, -RFV3, -RFV33D, -TEMPF, -WAITTIME, -RESPR, -PULSE, -POPCT)
+rf_fit = randomForest(factor(ADMITHOS) ~ ., 
+                      data =subset_admit_train)
 plot(rf_fit)
 rf_fit$err.rate %>% head()
 
@@ -26,9 +20,9 @@ tibble(oob_error = rf_fit$err.rate[,"OOB"],
 dev.off()
 
 # Varying mtry
-rf_3 = randomForest(factor(ADMITHOS) ~ ., mtry = 3, data = admit_train)
-rf_7 = randomForest(factor(ADMITHOS) ~ ., mtry = 7, data = admit_train)
-rf_13 = randomForest(factor(ADMITHOS) ~ ., mtry = 13, data = admit_train)
+rf_3 = randomForest(factor(ADMITHOS) ~ ., mtry = 3, data = subset_admit_train)
+rf_7 = randomForest(factor(ADMITHOS) ~ ., mtry = 7, data = subset_admit_train)
+rf_13 = randomForest(factor(ADMITHOS) ~ ., mtry = 13, data = subset_admit_train)
 oob_errors = bind_rows(
   tibble(ntree = 1:500, oob_err = rf_3$err.rate[,"OOB"], m = 3),
   tibble(ntree = 1:500, oob_err = rf_7$err.rate[,"OOB"], m = 7),
@@ -55,11 +49,11 @@ rf_fitVarImp = randomForest(factor(ADMITHOS) ~ AGE + AMBTRANSFER +
                           CAD + CBC + CHF + CKD + CMP + COPD +
                           CPR + CTAB + CTCHEST + CTHEAD + CTOTHER +
                           CTUNK + DDIMER + CARDMON + CBC + CONSULT + 
-                          CATRIAGE + DIABTYP1 + DIABTYP2 + DIABTYP0 + NOFU +
-                          NUMMED + NUMGIV + PAINSCALE + PAYTYPER + POPCT + 
-                          PROC +  PTTINR + PULSE + RACER + RACERETH + RACEUN + RETREFFU +
+                          CATRIAGE + DIABTYP1 + DIABTYP2 + DIABTYP0 + 
+                          NUMMED + NUMGIV + PAINSCALE + PAYMCARE + PAYTYPER + POPCT + 
+                          PROC +  PTTINR + PULSE + RACER + RACERETH + RACEUN + 
                           REGION + RESIDNCE + NURSEPR + RESPR + 
-                          SEEN72 + RNLPN + + TOTCHRON + TOTDIAG, 
+                          SEEN72 + RNLPN + TOTCHRON + TOTDIAG, 
                           importance = TRUE, data = admit_train)
 
 png(width = 9, 
@@ -76,7 +70,7 @@ rf_predictions = predict(rf_7, #n.trees = optimal_num_trees,
                          type = "response", newdata = admit_test)
 
 misclas_rforest <- mean(rf_predictions != admit_test$ADMITHOS)
-misclas_rforestHC <- 0.02116183
+misclas_rforestHC <- 0.0846473
 
 
 ############# Boosting ###########
@@ -84,9 +78,9 @@ misclas_rforestHC <- 0.02116183
 set.seed(1)
 # Setting binary response variable to 0 - 1, NOT as a factor
 admit_train$ADMITHOS <- as.numeric(as.character(admit_train$ADMITHOS))
-gbm_fit = gbm(ADMITHOS ~ .,
+gbm_fit = gbm(ADMITHOS ~ . - DIAG1R - DIAG2R - LOV - RFV1 - MED1,
               distribution = "bernoulli",
-              n.trees = 200,
+              n.trees = 100,
               interaction.depth = 1,
               shrinkage = 0.1,
               cv.folds = 5,
@@ -96,7 +90,7 @@ gbm.perf(gbm_fit) #60
 
 # try a few values
 set.seed(1)
-ntrees = 200
+ntrees = 100
 gbm_fit_1 = gbm(ADMITHOS ~ . - DIAG1R - DIAG2R - LOV - RFV1 - MED1,
                 distribution = "bernoulli",
                 n.trees = ntrees,
@@ -140,12 +134,13 @@ dev.off()
 
 # partial dependence plots
 gbm_fit_optimal = gbm_fit_3
-optimal_num_trees = gbm.perf(gbm_fit_2, plot.it = FALSE)
+optimal_num_trees = gbm.perf(gbm_fit_3, plot.it = FALSE)
 var_sum <- summary(gbm_fit_optimal, n.trees = optimal_num_trees, plotit = FALSE) %>%
-  head(31) 
+  head(11) 
 var_sum %>% write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/boosting_var_summary.tsv")#want this table as a kable 
 
 plot(gbm_fit_optimal, i.var = "AGE", n.trees = optimal_num_trees, type = "response")
+plot(gbm_fit_optimal, i.var = "NUMDIS", n.trees = optimal_num_trees, type = "response")
 plot(gbm_fit_optimal, i.var = "TOTDIAG", n.trees = optimal_num_trees, type = "response")
 
 
