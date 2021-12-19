@@ -199,10 +199,9 @@ data_factored$PRESCR2 <- as.factor(data_factored$PRESCR2)
 # dropping rows with NA values
 data_factored = data_factored %>%
   drop_na()
-
 ```
 
-Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hosptial (dead on arrival or died in the ED).
+Removing empty columns, remove gpmed variables because numGiv gives you sum of # gpmed per patient, removing LEFTBTRI:DIEDED because these patients are not admitted into the ED (therefore cannot be admitted to hospital) or they died before they could be admitted to hospital (dead on arrival or died in the ED).
 
 ### Train & Test Split
 ```{r}
