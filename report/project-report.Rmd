@@ -228,17 +228,38 @@ Below are the 159 features we used for analysis. Words written in parentheses re
   - Prothrombin time (`PTTINR`)
   
   - Throat culture (`TRTCX`)
+  - Total number of diagnostic services ordered (`TOTDIAG`): 0-20 range
   - Toxicology screen (`TOXSCREN`)
   - Ultrasound (`ULTRASND`)
   - Urine dipstick (`URINE`)
   - Urine culture (`URINECX`)
   - Wound culture (`WOUNDCX`)
-  - 
   - X-ray testing (`XRAY`)
-  
-  
+
+**Procedures**
+  - Bilevel positive airway pressure device (`BPAP`)
+  - Bladder catheter (`BLADCATH`)
+  - Cast, splint, wrap (`CASTSPLINT`)
+  - Central line (`CENTLINE`)
+  - CPR (`CPR`)
+  - Lumbar puncture (`LUMBAR`)
+  - Nebulizer therapy (`NEBUTHER`)
+  - Pelvic exam (`PELVIC`)
+  - Skin adhesives (`SKINADH`)
+  - suturing/staples (`SUTURE`)
+  - Other procedure (`OTHPROC`)
+  - Were procedures provided at this visit? (`PROC`)
+  - Total number of procedures provided (`TOTPROC`): range of 0-6
 
 **Measurements taken during Emergency Department Visit** 
 
-**Hospital Provisions** 
-
+**Medications** 
+  - Were medications given at this visit? (`MED`)
+  - Medication #1 (`MED1`)
+  - Number of medications given in ED (`NUMGIV`): range of 0-30
+  - Number of medications prescribed at discharge (`NUMDIS`): range of 0-30
+  - Number of medications coded (`NUMMED`)
+  
+**Providers seen**
+  - ED attending physician (`ATTPHYS`)
+  
