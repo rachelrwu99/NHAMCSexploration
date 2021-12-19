@@ -198,15 +198,21 @@ Furthermore, this data set precedes the COVID-19 pandemic and does not illustrat
 
 Below are the 159 features we used for analysis. Words written in parentheses represent variable names. Unless noted otherwise, all variables are categorical. 
 
-**Health behaviors:** 
+**Diagnostic Services:** 
 
-- *Tobacco Use*
-  - Adult smoking (`smoke_perc`): Percentage of adults who are current smokers.
-- *Diet and Exercise* 
-  - Adult obesity (`obesity_perc`): Percentage of the adult population (age 20 and older) reporting a body mass index (BMI) greater than or equal to 30 kg/m2.
-  - Food environment index (`food_environment`): Index of factors that contribute to a healthy food environment, from 0 (worst) to 10 (best).
-  - Physical inactivity (`inactive_perc`): Percentage of adults age 20 and over reporting no leisure-time physical activity.
-  - Access to exercise opportunities (`physical_exercise_opportunities`): Percentage of population with adequate access to locations for physical activity
-  - Food insecurity (`Food_Insecure_perc`): Percentage of population who lack adequate access to food.
-  - Limited access to healthy foods (`limited_healthy_access`): Percentage of population who are low-income and do not live close to a grocery store.
+  - Arterial blood gases (`ABG`): laboratory test 
+  - Blood alcohol concentration (`BAC`): 
+  - Basic metabolic panel (`BMP`): 
+  - Brain natriuretic peptide (`BNP`): 
+  - Creatinine/Renal function panel (`BUNCREAT`):
+  - Cardiac Enzymes (`CARDENZ`):
+  - Complete blood count (`CBC`): 
+  - Comprehensive metabolic panel (`CMP`):
+  - Blood culture (`BLOODCX`):
+  - Blood culture (`BLOODCX`):
+  
+
+**Measurements taken during Emergency Department Visit** 
+
+**Hospital Provisions** 
 

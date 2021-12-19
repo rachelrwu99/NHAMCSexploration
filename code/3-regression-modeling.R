@@ -88,4 +88,49 @@ admit_test_pred = admit_test %>%
 # then calculate misclassification rate
 misclas_ridge = admit_test_pred %>%
   summarise(mean(ADMITHOS != predicted_admit_ridge))
-#ridge_misclas <- misclas_ridge[1]
+
+############# Elastic Net ######################
+elnet_fit = cva.glmnet(ADMITHOS ~ ., # formula notation, as usual
+                       nfolds = 10, # number of folds
+                       family = "binomial", # to specify logistic regression
+                       
+                       #  type.measure = "class", # use misclassification error in CV 
+                       type.measure = "class", # use misclassification error in CV 
+                       data = admit_train) # data to run elnet on
+elnet_fit$alpha
+plot_cva_glmnet(elnet_fit)
+elnet_fit_best = extract_best_elnet(elnet_fit)
+elnet_fit_best$alpha
+
+save(elnet_fit_best, file = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/elnet_fit.Rda")
+
+# create lasso CV plot
+png(width = 6, 
+    height = 4,
+    res = 300,
+    units = "in", 
+    filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/elnet-cv-plot.png")
+plot_cva_glmnet(elnet_fit_best)
+dev.off()
+
+# create lasso trace plot
+p_elastic = plot_glmnet(elnet_fit_best, admit_train, features_to_plot = 10)
+ggsave(filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/elnet-trace-plot.png", 
+       plot = p_elastic, 
+       device = "png", 
+       width = 6, 
+       height = 4)
+
+# Making predictions
+elnet_predictions = predict(elnet_fit, 
+                            newdata = admit_test,
+                            alpha = elnet_fit_best$alpha,
+                            s = "lambda.1se") %>% as.numeric()
+elnet_predictions = as.numeric(elnet_predictions > 0.5)
+
+admit_test_pred = admit_test %>%
+  mutate(predicted_admit_elnet = elnet_predictions)
+
+# then calculate misclassification rate
+misclas_elastic <- admit_test_pred %>%
+  summarise(mean(ADMITHOS != predicted_admit_elnet))
