@@ -2,6 +2,7 @@ train_samples = sample(1:nrow(data_factored), 0.8*nrow(data_factored))
 admit_train = data_factored %>% filter(row_number() %in% train_samples)
 admit_test = data_factored %>% filter(!(row_number() %in% train_samples))
 
+
 ###########LASSO##################
 lasso_fit50 = cv.glmnet(ADMITHOS ~ ., # formula notation, as usual
                       alpha = 1, # alpha = 1 for lasso
