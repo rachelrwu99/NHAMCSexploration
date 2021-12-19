@@ -383,7 +383,10 @@ admit_test_pred %>%
 elnet_fit = cva.glmnet(ADMITHOS ~ ., # formula notation, as usual
                       nfolds = 10, # number of folds
                       family = "binomial", # to specify logistic regression
+
+                    #  type.measure = "class", # use misclassification error in CV 
                       type.measure = "class", # use misclassification error in CV 
+
                       data = admit_train) # data to run elnet on
 elnet_fit$alpha
 plot_cva_glmnet(elnet_fit)
