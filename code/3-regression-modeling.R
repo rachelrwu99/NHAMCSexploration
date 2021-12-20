@@ -3,7 +3,7 @@ glm_fit = glm(ADMITHOS ~ .,
               family = "binomial",
               data = admit_train[1:50], na.action = na.exclude)
 
-write_tsv(as.data.frame(summary(glm_fit)$coef), file="/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/logreg-features-table.tsv")
+write_tsv(head(as.data.frame(summary(glm_fit)$coef)), file="/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/logreg-features-table.tsv")
 
 
 fitted_probabilities_glm = predict(glm_fit,
@@ -54,9 +54,10 @@ ggsave(filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/la
 
 # extract features selected by lasso and their coefficients
 beta_hat_std = extract_std_coefs(lasso_fit50, admit_train)
-beta_hat_std %>%
+b1 <- beta_hat_std %>%
   filter(coefficient != 0) %>%
-  arrange(desc(abs(coefficient))) %>% 
+  arrange(desc(abs(coefficient)))
+head(b1, 10) %>%
   write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/lasso-features-table.tsv")
 
 # Making predictions
@@ -102,9 +103,10 @@ ggsave(filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/ri
        height = 4)
 
 beta_hat_std_ridge = extract_std_coefs(ridge_fit, admit_train)
-beta_hat_std_ridge %>%
+b2 <- beta_hat_std_ridge %>%
   filter(coefficient != 0) %>%
-  arrange(desc(abs(coefficient))) %>% 
+  arrange(desc(abs(coefficient)))
+head(b2, 10) %>%
   write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/ridge-features-table.tsv")
 
 # Making predictions using ridge logistic regression
@@ -155,9 +157,10 @@ ggsave(filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/el
        height = 4)
 
 beta_hat_std_elnet = extract_std_coefs(elnet_fit_best, admit_train)
-beta_hat_std_elnet %>%
+b3 <- beta_hat_std_elnet %>%
   filter(coefficient != 0) %>%
-  arrange(desc(abs(coefficient))) %>% 
+  arrange(desc(abs(coefficient))) 
+head(b3, 10) %>%
   write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/elnet-features-table.tsv")
 
 # Making predictions
