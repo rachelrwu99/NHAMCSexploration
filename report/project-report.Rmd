@@ -30,7 +30,11 @@ The code to reproduce this report is available [on Github](https://github.com/ra
 
 **Analysis.** We analyzed hospital admittance based on 150 features from the NHAMCS dataset using various regression and tree based prediction methods.
 
+<<<<<<< HEAD
 **Conclusions.** In summary, we were able to achieve a minimum misclassification error on unseen test data of 7.88% using a random forest classifier.
+=======
+**Conclusions.** Our analysis 
+>>>>>>> 1045fa8d95163205f21641a7596e3daebc16527a
 
 # Introduction
 
@@ -316,7 +320,7 @@ The inner machinations of any emergency departments are quite complex and our fi
 
 # Appendix: Descriptions of features {#appendix}
 
-Below are the 150 features we used for analysis. Words written in parentheses represent variable names. Unless noted otherwise, all variables are categorical. 
+Below are the 155 features we used for analysis. Words written in parentheses represent variable names. Unless noted otherwise, all variables are categorical. 
 
 **Date of Visit**
   - Month of visit (`VMONTH`): 1-12, January-December
@@ -428,6 +432,7 @@ Below are the 150 features we used for analysis. Words written in parentheses re
   
   
 **Hospital Management and Equipment Available**
+  - Continue to admit elective surgery cases when on ambulance diversion (`ADMDIV`)
   - Computer assisted triage (`CATRIAGE`)
   - Electronic dashboard displaying updated patient info and status (`DASHBORD`)
   - Zone nursing (`ZONENURS`): all nurse's patients located in one area
