@@ -74,7 +74,7 @@ We have several similar features that tell us information on patient disposition
 
 ### Features
 
-We include 159 total features. For a detailed specification of these variables, refer to Appendix \@ref(appendix).
+We include 150 total features. For a detailed specification of these variables, refer to Appendix \@ref(appendix).
 
 ## Data allocation
 
@@ -117,7 +117,7 @@ knitr::include_graphics("../results/age-distribution-plot.png")
 
 ### Logistic Regression
 
-We started our analysis using a logistic regression based on a limited subset of 50 features due to the high complexity of a logistic regression classifier with 159 variables that would be prone to overfitting.
+We started our analysis using a logistic regression based on a limited subset of 50 features due to the high complexity of a logistic regression classifier with 150 variables that would be prone to overfitting.
 
 We were able to achieve a baseline misclassification error of 9.21%. Our approach was to improve on that performance by using other learning methods and expanding the feature space.
 
@@ -132,23 +132,23 @@ For the lasso, Figure \@ref(fig:lasso-CV-plot) shows the CV plot, Figure \@ref(f
 It is noteworthy that the variable "TOTDIAG", i.e. the total number of diagnostic services ordered or provided seems to be important and indicative of whether or not a patient gets admitted to the hospital. "CONSULT0" has the largest negative coefficient which makes sense since not consulting a physician might increase the likelihood of not being admitted to the hospital.
 
 With the lasso classifier we were able to achieve a misclassification error of 8.71%.
-
 ```{r lasso-CV-plot, out.width = "90%", fig.cap = "Lasso CV plot.", fig.align='center', echo = FALSE}
 knitr::include_graphics("../results/lasso-cv-plot.png")
 ```
+
 
 ```{r lasso-trace-plot, out.width = "90%", fig.cap = "Lasso trace plot.", fig.align='center', echo = FALSE}
 knitr::include_graphics("../results/lasso-trace-plot.png")
 ```
 
 ```{r lasso-coefficients, message = FALSE, echo = FALSE}
-#read_tsv("../results/lasso-features-table.tsv") %>%
-#  kable(format = "latex", row.names = NA, 
-#        booktabs = TRUE, digits = 2, 
-#        col.names = c("Feature", "Coefficient"),
-#        caption = "Standardized coefficients for features in the lasso 
-#        model based on the one-standard-error rule.") %>%
-#  kable_styling(position = "center")
+read_tsv("../results/lasso-features-table.tsv") %>%
+  kable(format = "latex", row.names = NA, 
+        booktabs = TRUE, digits = 2, 
+        col.names = c("Feature", "Coefficient"),
+        caption = "Standardized coefficients for features in the lasso 
+        model based on the one-standard-error rule.") %>%
+  kable_styling(position = "center")
 ```
 
 #### Ridge Logistic Regression
@@ -168,25 +168,25 @@ knitr::include_graphics("../results/ridge-trace-plot.png")
 ```
 
 ```{r ridge-coefficients, message = FALSE, echo = FALSE}
-#read_tsv("../results/ridge-features-table.tsv") %>%
-#  kable(format = "latex", row.names = NA, 
-#        booktabs = TRUE, digits = 2, 
-#        col.names = c("Feature", "Coefficient"),
-#        caption = "Standardized coefficients for features in the ridge 
-#        model based on the one-standard-error rule.") %>%
-#  kable_styling(position = "center")
+read_tsv("../results/ridge-features-table.tsv") %>%
+  kable(format = "latex", row.names = NA, 
+        booktabs = TRUE, digits = 2, 
+        col.names = c("Feature", "Coefficient"),
+        caption = "Standardized coefficients for features in the ridge 
+        model based on the one-standard-error rule.") %>%
+  kable_styling(position = "center")
 ```
 
 #### Elastic Net Regression
 
 As a next step, we used an elastic net regression model to get the benefits from ridge-like shrinkage as well as lasso-like selection.
 
-For the elastic net regression, Figure \@ref(fig:elnet-CV-plot) shows the CV plot, Figure \@ref(fig:elnet-trace-plot) shows the trace plot, and Table \@ref(tab:elnet-coefficients) shows the selected features and their coefficients. 
+For the elastic net regression, Figure \@ref(fig:elnet-trace-plot) shows the trace plot, and Table \@ref(tab:elnet-coefficients) shows the selected features and their coefficients. 
 
 We were able to achieve a 9.54% misclassification error using the elastic net classifier. Since the 8.71% missclassification error of the lasso classifier is the lowest one out of the regression based methods, this suggests that few features have large effects.
 
 ```{r elnet-CV-plot, out.width = "90%", fig.cap = "Elastic Net CV plot.", fig.align='center', echo = FALSE}
-knitr::include_graphics("../results/elnet-cv-plot.png")
+#knitr::include_graphics("../results/elnet-cv-plot.png")
 ```
 
 ```{r elnet-trace-plot, out.width = "90%", fig.cap = "Elastic Net trace plot.", fig.align='center', echo = FALSE}
@@ -194,22 +194,34 @@ knitr::include_graphics("../results/elnet-trace-plot.png")
 ```
 
 ```{r elnet-coefficients, message = FALSE, echo = FALSE}
-#read_tsv("../results/elnet-features-table.tsv") %>%
-#  kable(format = "latex", row.names = NA, 
-#        booktabs = TRUE, digits = 2, 
-#        col.names = c("Feature", "Coefficient"),
-#        caption = "Standardized coefficients for features in the Elastic Net 
-#        model based on the one-standard-error rule.") %>%
-#  kable_styling(position = "center")
+read_tsv("../results/elnet-features-table.tsv") %>%
+  kable(format = "latex", row.names = NA, 
+        booktabs = TRUE, digits = 2, 
+        col.names = c("Feature", "Coefficient"),
+        caption = "Standardized coefficients for features in the Elastic Net 
+        model based on the one-standard-error rule.") %>%
+  kable_styling(position = "center")
 ```
 
 ## Tree-based methods
 
 ### Unpruned Decision Tree
 
+For our first tree-based method we used an unpruned decision tree to predict the admittance to the hospital. As seen in \@ref(fig:tree-plot), "NUMDIS" or the number of medications prescribed at discharge is a good feature to split on.
 
+With the unpruned decision tree we were able to achieve a misclassification error of 11.4%.
+
+```{r tree-plot, out.width = "90%", fig.cap = "Unpruned Tree Plot.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/tree_plot.png")
+```
 
 ### Pruned Decision Tree
+
+After pruning the decision tree, the misclassification error improves slightly to 11.2%. The pruned Tree CV error plot in Figure \@ref(fig:tree-pruned-plot) shows that the optimal number of terminal nodes is 3.
+
+```{r tree-pruned-plot, out.width = "90%", fig.cap = "Pruned Tree CV Error Plot.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/tree_pruned_plot.png")
+```
 
 ### Random Forest
 
@@ -227,7 +239,7 @@ knitr::include_graphics("../results/elnet-trace-plot.png")
   #kable_styling(position = "center")
 ```
 
-Table \@ref(tab:model-evaluation) shows the test RMSE for all the methods considered. Except for the OLS, the random forest and the boosted model have the lowest test errors. This is reasonable given these models’ tendencies to have high predictive accuracy. Between the two, the boosted model has the lowest test error, with a mean squared error of 0.000139, but it is closely followed by random forest, which has a mean squared error of 0.00141. Notably, however, the ridge, LASSO, and elastic net regressions perform about as well, with test MSEs of 0.000158, 0.000164, and 0.000161, respectively. Although OLS has the lowest training and test error, its adjusted R-squared value was only about 0.3, and there were too many features given the number of observations.
+Table \@ref(tab:model-evaluation) shows the misclassification for all the methods considered. Except for the OLS, the random forest and the boosted model have the lowest test errors. This is reasonable given these models’ tendencies to have high predictive accuracy. Between the two, the boosted model has the lowest test error, with a mean squared error of 0.000139, but it is closely followed by random forest, which has a mean squared error of 0.00141. Notably, however, the ridge, LASSO, and elastic net regressions perform about as well, with test MSEs of 0.000158, 0.000164, and 0.000161, respectively. Although OLS has the lowest training and test error, its adjusted R-squared value was only about 0.3, and there were too many features given the number of observations.
 
 Regardless of these differences in test MSE, the methods overlap significantly in their identification of important variables from the larger set. For instance, the elastic net regression selects the following variables, which are also selected by LASSO and deemed significant in the OLS model: other providers ratio, unemployment, income inequality, housing overcrowding, residential segregation—non-White/White, homeownership, and physical inactivity. The random forest and boosting models both include low birthweight percentage, median income, and unemployment percentage in the top 10 most important variables, as measured by their contributions to node purity. 
 
