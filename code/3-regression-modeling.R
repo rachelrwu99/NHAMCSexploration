@@ -140,7 +140,7 @@ elnet_fit_best$alpha
 
 save(elnet_fit_best, file = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/elnet_fit.Rda")
 
-# create lasso CV plot
+# create elnet CV plot
 png(width = 6, 
     height = 4,
     res = 300,
@@ -149,7 +149,7 @@ png(width = 6,
 plot_cva_glmnet(elnet_fit_best)
 dev.off()
 
-# create lasso trace plot
+# create elnet trace plot
 p_elastic = plot_glmnet(elnet_fit_best, admit_train, features_to_plot = 10)
 ggsave(filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/elnet-trace-plot.png", 
        plot = p_elastic, 
