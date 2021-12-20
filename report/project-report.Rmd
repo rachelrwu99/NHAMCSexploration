@@ -277,8 +277,7 @@ Furthermore, this data set precedes the COVID-19 pandemic and does not illustrat
 
 
 ### Analysis limitations
-For the unpruned tree output, we ran into problems creating 
-the random forests and boosting models. Some of our features included more than 1054 factors levels, features related to diagnosis codes or medicine names, and we were forced to exclude those variables from our training dataset. 
+For the unpruned tree visualization, some of our features included more than 1054 factors levels, for example features related to diagnosis codes or medicine names, and we were forced to exclude those variables from our training dataset for the tree visualization, since the function will not allow more than 1054 factor levels as an input. Because of this, we lost valuable visual insight but were still able to train the underlying model and receive a true misclassifiaction error that was calculated with the inclusion of all of our features. We are additionally missing the features excluded during the cleaning stage of our analysis and we cannot be sure that these features do not also exert influence of our response variable, so this is a weakness in our analysis. Lastly, the exclusion of survey weighting during our exploration of the response variable distribution and characterization may cause a misrepresentation of the data and should be looked into with further analysis.
  
 
 ## Follow-ups

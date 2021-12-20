@@ -66,11 +66,11 @@ varImpPlot(rf_fitVarImp, main = "Random Forest: Variable Importance Plot")
 dev.off()
 
 # Making predictions
-rf_predictions = predict(rf_7, #n.trees = optimal_num_trees,
+rf_predictions = predict(rf_13, #n.trees = optimal_num_trees,
                          type = "response", newdata = admit_test)
 
 misclas_rforest <- mean(rf_predictions != admit_test$ADMITHOS)
-misclas_rforestHC <- 0.0846473
+misclas_rforestHC <- 0.07883817
 
 
 ############# Boosting ###########
