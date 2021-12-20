@@ -249,7 +249,8 @@ Furthermore, this data set precedes the COVID-19 pandemic and does not illustrat
 
 
 ### Analysis limitations
-We ran into difficulty with the random forests and boosting models. Some of our features included more than 1054 factors levels, features related to diagnosis codes or medicine names, and we were forced to exclude those variables from our training dataset. 
+We ran into difficulty with our logistic regression, due to an error 
+the random forests and boosting models. Some of our features included more than 1054 factors levels, features related to diagnosis codes or medicine names, and we were forced to exclude those variables from our training dataset. 
  
 
 ## Follow-ups

@@ -2,8 +2,12 @@
 glm_fit = glm(ADMITHOS ~ .,
               family = "binomial",
               data = admit_train[1:50], na.action = na.exclude)
-
-coef(glm_fit)
+coef(glm_fit) %>% as.tibble() %>% write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/regression_coefs.tsv")
+# extract features selected by lasso and their coefficients
+coef(glm_fit)  %>%
+  filter(coefficient != 0) %>%
+  arrange(desc(abs(coefficient))) %>% 
+  write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/logreg-features-table.tsv")
 
 fitted_probabilities_glm = predict(glm_fit,
                                    newdata = admit_test,
@@ -32,7 +36,7 @@ lasso_fit50 = cv.glmnet(ADMITHOS ~ ., # formula notation, as usual
                       data = admit_train) # data to run lasso on
 
 # save the lasso fit object
-save(lasso_fit50, file = "results/lasso_fit50.Rda")
+save(lasso_fit50, file = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/lasso_fit50.Rda")
 
 # create lasso CV plot
 png(width = 6, 
@@ -51,6 +55,12 @@ ggsave(filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/la
        width = 6, 
        height = 4)
 
+# extract features selected by lasso and their coefficients
+beta_hat_std = extract_std_coefs(lasso_fit50, admit_train)
+beta_hat_std %>%
+  filter(coefficient != 0) %>%
+  arrange(desc(abs(coefficient))) %>% 
+  write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/lasso-features-table.tsv")
 
 # Making predictions
 lasso50_predictions = predict(lasso_fit50, 
@@ -94,6 +104,11 @@ ggsave(filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/ri
        width = 6, 
        height = 4)
 
+beta_hat_std_ridge = extract_std_coefs(ridge_fit, admit_train)
+beta_hat_std_ridge %>%
+  filter(coefficient != 0) %>%
+  arrange(desc(abs(coefficient))) %>% 
+  write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/ridge-features-table.tsv")
 
 # Making predictions using ridge logistic regression
 fitted_probabilities_ridge = predict(ridge_fit,
