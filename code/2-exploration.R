@@ -46,6 +46,13 @@ race_admit = data_factored %>%
   filter(ADMITHOS==1) %>%
   cbind(race = c("Non-Hispanic White","Non-Hispanic Black", "Hispanic")) %>%
   select(-c(ADMITHOS,cnt))
+
+race_admit = race_admit %>%
+  ungroup() %>%
+  select(-RACER) %>%
+  select(race, everything()) %>%
+  add_row(race = "Total", admit_rate = formattable::percent(0.109)) %>%
+  write_tsv("/Users/leo/Documents/University/Academic Plan/Fall 2021/STAT 571/Final Project/NHAMCSexploration/results/race-admit.tsv")
   
 race_admit %>%
   ggplot(aes(x = race, y = admit_rate)) +
