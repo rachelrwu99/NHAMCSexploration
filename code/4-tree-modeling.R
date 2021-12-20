@@ -1,27 +1,41 @@
 ################## Unpruned decision tree ##################
-split.fun <- function(x, labs, digits, varlen, faclen)
-{
-  # replace commas with spaces (needed for strwrap)
-  labs <- gsub(",", " ", labs)
-  for(i in 1:length(labs)) {
-    # split labs[i] into multiple lines
-    labs[i] <- paste(strwrap(labs[i], width=25), collapse="\n")
-  }
-  labs
-}
+split.fun <-function(x, labs, digits, varlen, faclen) { # replace commas with spaces (needed for strwrap) 
+  labs <-gsub(",", " ", labs) 
+  for(i in 1:length(labs)) { # split labs[i] into multiple lines 
+    labs[i] <-paste(strwrap(labs[i], width = 15), collapse = "\n") 
+  } 
+  labs 
+} 
 
-tree_fit = rpart(ADMITHOS ~ .,
+subset_admit_trainTree <- admit_train %>%
+  select( -DIAG1R, -DIAG2R, -RFV1, -MED1,-CONTSUB2,
+          -RFV13D, -RFV2, -RFV23D, -RFV3, -RFV33D)
+#add a range row for the LOV and temperature
+mean_TEMPF <- mean(replace(as.numeric(data_raw$TEMPF), as.numeric(data_raw$TEMPF) == -9, NA), na.rm = TRUE)
+mean_LOV <- mean(replace(as.numeric(data_raw$LOV), as.numeric(data_raw$LOV) == -9, NA), na.rm = TRUE)
+subset_admit_trainTree$TEMPF <- as.numeric(subset_admit_trainTree$TEMPF)
+subset_admit_trainTree$TEMPF[subset_admit_trainTree$TEMPF < 0] <- mean_TEMPF
+subset_admit_trainTree$LOV <- as.numeric(subset_admit_trainTree$LOV)
+subset_admit_trainTree$LOV[subset_admit_trainTree$LOV < 0] <- mean_LOV
+
+
+tree_fitView = rpart(ADMITHOS ~ .,
                  method = "class", # classification
                  parms = list(split = "gini"), # Gini index for splitting
-                 data = admit_train)
-save(tree_fit, file = "results/tree_fit.Rda")
+                 data = subset_admit_trainTree)
+tree_fit = rpart(ADMITHOS ~ .,
+                     method = "class", # classification
+                     parms = list(split = "gini"), # Gini index for splitting
+                     data = admit_train)
+save(tree_fit, file = 
+       "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/tree_fit.Rda")
 # create plot
 png(width = 6, 
     height = 4,
     res = 300,
     units = "in", 
     filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/tree_plot.png")
-rpart.plot(tree_fit, split.fun=split.fun)
+rpart.plot(tree_fitView, split.fun=split.fun)
 dev.off()
 
 pred_tree = predict(tree_fit, newdata = admit_test, type = "class")
