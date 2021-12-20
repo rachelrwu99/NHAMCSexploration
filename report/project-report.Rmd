@@ -6,7 +6,7 @@ output:
   bookdown::pdf_document2:
     number_sections: yes
     toc: yes
-    toc_depth: '2'
+    toc_depth: '4'
 urlcolor: blue
 ---
 
@@ -121,9 +121,12 @@ We were able to achieve a baseline misclassification error of 9.21%. Our approac
 
 We proceeded to evaluate our classifier with an ROC Curve in Figure \@ref(fig:roc-plot). The area under the curve is 0.6812, making the baseline classifier better than a naive classifier.
 
+
 ```{r roc-plot, out.width = "80%", fig.cap = "ROC curve for logistic regression, area under the curve of 0.6812.", fig.align='center', echo = FALSE}
 knitr::include_graphics("../results/ROC.png")
 ```
+
+
 
 ### Penalized regression
 
@@ -282,9 +285,9 @@ read_tsv("../results/model-evaluation.tsv") %>%
   kable_styling(position = "center")
 ```
 
-Table \@ref(tab:model-evaluation) shows the misclassification for all the methods considered. Except for the OLS, the random forest and the boosted model have the lowest test errors. This is reasonable given these models’ tendencies to have high predictive accuracy. Between the two, the boosted model has the lowest test error, with a mean squared error of 0.000139, but it is closely followed by random forest, which has a mean squared error of 0.00141. Notably, however, the ridge, LASSO, and elastic net regressions perform about as well, with test MSEs of 0.000158, 0.000164, and 0.000161, respectively. Although OLS has the lowest training and test error, its adjusted R-squared value was only about 0.3, and there were too many features given the number of observations.
+Table \@ref(tab:model-evaluation) shows the misclassification for all the methods considered. The random forest classifier has the best performance with a misclassification error of 8%, followed by logistic regression and lasso which each have a roughly 9% misclassification error. Elastic Net and Boosting have a 10% misclassification error each, followed by ridge and pruned trees which perform worst with misclassification errors of 11%.
 
-Regardless of these differences in test MSE, the methods overlap significantly in their identification of important variables from the larger set. For instance, the elastic net regression selects the following variables, which are also selected by LASSO and deemed significant in the OLS model: other providers ratio, unemployment, income inequality, housing overcrowding, residential segregation—non-White/White, homeownership, and physical inactivity. The random forest and boosting models both include low birthweight percentage, median income, and unemployment percentage in the top 10 most important variables, as measured by their contributions to node purity. 
+Regardless of these differences in the misclassification error, the methods overlap significantly in their identification of important variables from the larger set. For instance, the elastic net regression selects the following variables, which are also selected by LASSO and deemed significant in the logistic regression model: CONSULT, TOTDIAG and NUMGIV. The random forest and boosting models both include AGE, CONSULT, TOTDIAG in the top 10 most important variables, as measured by their contributions to node purity. 
 
 
 ## Takeaways
