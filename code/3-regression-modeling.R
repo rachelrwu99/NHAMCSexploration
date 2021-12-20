@@ -2,12 +2,7 @@
 glm_fit = glm(ADMITHOS ~ .,
               family = "binomial",
               data = admit_train[1:50], na.action = na.exclude)
-coef(glm_fit) %>% as.tibble() %>% write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/regression_coefs.tsv")
-# extract features selected by lasso and their coefficients
-coef(glm_fit)  %>%
-  filter(coefficient != 0) %>%
-  arrange(desc(abs(coefficient))) %>% 
-  write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/logreg-features-table.tsv")
+coef(glm_fit)
 
 fitted_probabilities_glm = predict(glm_fit,
                                    newdata = admit_test,

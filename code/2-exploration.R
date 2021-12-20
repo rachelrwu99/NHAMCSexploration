@@ -75,7 +75,24 @@ data_factored %>%
   summarise(cnt = n()) %>%
   mutate(admit_rate = formattable::percent(cnt / sum(cnt)))
 
+# ROC Curve
+roc_data = roc(admit_test %>% pull(ADMITHOS),
+               fitted_probabilities_glm)
+png(width = 6, 
+    height = 4,
+    res = 300,
+    units = "in", 
+    filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/ROC.png")
+tibble(FPR = 1-roc_data$specificities,
+       TPR = roc_data$sensitivities) %>%
+  ggplot(aes(x = FPR, y = TPR)) +
+  geom_line() +
+  geom_abline(slope = 1, linetype = "dashed") +
+  theme_bw()
+dev.off()
 
+# print the AUC
+roc_data$auc
 
 # correlation matrix
 corr_simple <- function(data=df,sig=0.5){
