@@ -157,6 +157,12 @@ ggsave(filename = "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/el
        width = 6, 
        height = 4)
 
+beta_hat_std_elnet = extract_std_coefs(elnet_fit_best, admit_train)
+beta_hat_std_elnet %>%
+  filter(coefficient != 0) %>%
+  arrange(desc(abs(coefficient))) %>% 
+  write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/elnet-features-table.tsv")
+
 # Making predictions
 elnet_predictions = predict(elnet_fit, 
                             newdata = admit_test,
