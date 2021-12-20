@@ -90,7 +90,11 @@ We found that 10.9% of patients were admitted to the hospital after being seen i
 knitr::include_graphics("../results/admit-distribution-plot.png")
 ```
 
-Looking at the race variable revealed that hospital admittance rates vary greatly across ethnic groups. For instance, 11.8% of white people get admitted to the hospital whereas only 8.0% of black people get admitted which poses the question of fairness and equity in the healthcare system.
+
+
+### Features
+
+Looking at the race feature revealed that hospital admittance rates vary greatly across ethnic groups. Table \@ref(tab:race-admittance) shows that 11.8% of white people get admitted to the hospital whereas only 8.0% of black people get admitted which poses the question of fairness and equity in the healthcare system.
 
 ```{r race-admittance, message = FALSE, echo = FALSE}
 read_tsv("../results/race-admit.tsv") %>%
@@ -101,15 +105,11 @@ read_tsv("../results/race-admit.tsv") %>%
   kable_styling(position = "center")
 ```
 
-The AGE variable in the cleaned dataset has two humps around 0 and 25 with an overall median age of 39. This is approximately consistent with the age distribution of the United States where there the age distribution declines approximately linearly with increasing age.
+As shown in Figure \@ref(fig:age-histogram), the AGE variable in the cleaned dataset has two humps around 0 and 25 with an overall median age of 39. This is approximately consistent with the age distribution of the United States where there the age distribution declines approximately linearly with increasing age.
 
 ```{r age-histogram, out.width = "80%", fig.cap = "Distribution of age; vertical dashed line indicates the median.", fig.align='center', echo = FALSE}
 knitr::include_graphics("../results/age-distribution-plot.png")
 ```
-
-### Features
-
-[Omitted from template.]
 
 # Modeling
 
@@ -118,7 +118,10 @@ knitr::include_graphics("../results/age-distribution-plot.png")
 ### Logistic Regression
 
 We started our analysis using a logistic regression based on a limited subset of 50 features due to the high complexity of a logistic regression classifier with 159 variables that would be prone to overfitting.
-We were able to achieve a baseline misclassification error of XXXXXXX.
+
+We were able to achieve a baseline misclassification error of 9.21%. Our approach was to improve on that performance by using other learning methods and expanding the feature space.
+
+################# ROC CURVE Here ###########
 
 ### Penalized regression
 
@@ -127,6 +130,8 @@ We were able to achieve a baseline misclassification error of XXXXXXX.
 For the lasso, Figure \@ref(fig:lasso-CV-plot) shows the CV plot, Figure \@ref(fig:lasso-trace-plot) shows the trace plot, and Table \@ref(tab:lasso-coefficients) shows the selected features and their coefficients. 
 
 It is noteworthy that the variable "TOTDIAG", i.e. the total number of diagnostic services ordered or provided seems to be important and indicative of whether or not a patient gets admitted to the hospital. "CONSULT0" has the largest negative coefficient which makes sense since not consulting a physician might increase the likelihood of not being admitted to the hospital.
+
+With the lasso classifier we were able to achieve a misclassification error of 8.71%.
 
 ```{r lasso-CV-plot, out.width = "90%", fig.cap = "Lasso CV plot.", fig.align='center', echo = FALSE}
 knitr::include_graphics("../results/lasso-cv-plot.png")
@@ -149,6 +154,11 @@ knitr::include_graphics("../results/lasso-trace-plot.png")
 #### Ridge Logistic Regression
 
 For the ridge regression, Figure \@ref(fig:ridge-CV-plot) shows the CV plot, Figure \@ref(fig:ridge-trace-plot) shows the trace plot, and Table \@ref(tab:ridge-coefficients) shows the selected features and their coefficients. 
+
+It is interesting to see that ridge also gave the "CONSULT" feature a high weight, both in the negative and positive range.
+
+With the ridge classifier our missclassification error was 10.7%.
+
 ```{r ridge-CV-plot, out.width = "90%", fig.cap = "Ridge CV plot.", fig.align='center', echo = FALSE}
 knitr::include_graphics("../results/ridge-cv-plot.png")
 ```
@@ -167,9 +177,37 @@ knitr::include_graphics("../results/ridge-trace-plot.png")
 #  kable_styling(position = "center")
 ```
 
+#### Elastic Net Regression
+
+As a next step, we used an elastic net regression model to get the benefits from ridge-like shrinkage as well as lasso-like selection.
+
+For the elastic net regression, Figure \@ref(fig:elnet-CV-plot) shows the CV plot, Figure \@ref(fig:elnet-trace-plot) shows the trace plot, and Table \@ref(tab:elnet-coefficients) shows the selected features and their coefficients. 
+
+We were able to achieve a 9.54% misclassification error using the elastic net classifier. Since the 8.71% missclassification error of the lasso classifier is the lowest one out of the regression based methods, this suggests that few features have large effects.
+
+```{r elnet-CV-plot, out.width = "90%", fig.cap = "Elastic Net CV plot.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/elnet-cv-plot.png")
+```
+
+```{r elnet-trace-plot, out.width = "90%", fig.cap = "Elastic Net trace plot.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/elnet-trace-plot.png")
+```
+
+```{r elnet-coefficients, message = FALSE, echo = FALSE}
+#read_tsv("../results/elnet-features-table.tsv") %>%
+#  kable(format = "latex", row.names = NA, 
+#        booktabs = TRUE, digits = 2, 
+#        col.names = c("Feature", "Coefficient"),
+#        caption = "Standardized coefficients for features in the Elastic Net 
+#        model based on the one-standard-error rule.") %>%
+#  kable_styling(position = "center")
+```
+
 ## Tree-based methods
 
 ### Unpruned Decision Tree
+
+
 
 ### Pruned Decision Tree
 
