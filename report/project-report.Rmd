@@ -118,14 +118,15 @@ knitr::include_graphics("../results/age-distribution-plot.png")
 ### Logistic Regression
 
 We started our analysis using a logistic regression based on a limited subset of 50 features due to the high complexity of a logistic regression classifier with 159 variables that would be prone to overfitting.
-We were able to achieve a misclassification error of X.
+We were able to achieve a baseline misclassification error of XXXXXXX.
 
 ### Penalized regression
 
+#### Lasso Logistic Regression
+
 For the lasso, Figure \@ref(fig:lasso-CV-plot) shows the CV plot, Figure \@ref(fig:lasso-trace-plot) shows the trace plot, and Table \@ref(tab:lasso-coefficients) shows the selected features and their coefficients. 
 
-It is noteworthy that the variable TOTDIAG or the total number of diagnostic services ordered or provided seems to be important 
-
+It is noteworthy that the variable "TOTDIAG", i.e. the total number of diagnostic services ordered or provided seems to be important and indicative of whether or not a patient gets admitted to the hospital. "CONSULT0" has the largest negative coefficient which makes sense since not consulting a physician might increase the likelihood of not being admitted to the hospital.
 
 ```{r lasso-CV-plot, out.width = "90%", fig.cap = "Lasso CV plot.", fig.align='center', echo = FALSE}
 knitr::include_graphics("../results/lasso-cv-plot.png")
@@ -145,11 +146,34 @@ knitr::include_graphics("../results/lasso-trace-plot.png")
 #  kable_styling(position = "center")
 ```
 
+#### Ridge Logistic Regression
+
+For the ridge regression, Figure \@ref(fig:ridge-CV-plot) shows the CV plot, Figure \@ref(fig:ridge-trace-plot) shows the trace plot, and Table \@ref(tab:ridge-coefficients) shows the selected features and their coefficients. 
+```{r ridge-CV-plot, out.width = "90%", fig.cap = "Ridge CV plot.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/ridge-cv-plot.png")
+```
+
+```{r ridge-trace-plot, out.width = "90%", fig.cap = "Ridge trace plot.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/ridge-trace-plot.png")
+```
+
+```{r ridge-coefficients, message = FALSE, echo = FALSE}
+#read_tsv("../results/ridge-features-table.tsv") %>%
+#  kable(format = "latex", row.names = NA, 
+#        booktabs = TRUE, digits = 2, 
+#        col.names = c("Feature", "Coefficient"),
+#        caption = "Standardized coefficients for features in the ridge 
+#        model based on the one-standard-error rule.") %>%
+#  kable_styling(position = "center")
+```
+
 ## Tree-based methods
 
-[Omitted from template.]
+### Unpruned Decision Tree
 
-### Random forest
+### Pruned Decision Tree
+
+### Random Forest
 
 ### Boosting
 
