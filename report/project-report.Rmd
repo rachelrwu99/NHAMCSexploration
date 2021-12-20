@@ -224,6 +224,19 @@ We ran into difficulty with the random forests and boosting models. Some of our 
 
 Below are the 150 features we used for analysis. Words written in parentheses represent variable names. Unless noted otherwise, all variables are categorical. 
 
+**Date of Visit**
+  - Month of visit (`VMONTH`): 1-12, January-December
+  - Day of the week (`VDAYR`): 1-7, Sunday-Saturday
+
+**Patient's Reason for Visit**
+  - Reason for visit #1 (`RFV1`): coded 1005.0-8999.0
+  - Reason for visit #2 (`RFV2`): coded 1005.0-8999.0
+  - Reason for visit #3 (`RFV3`): coded 1005.0-8999.0
+  - Reason for visit #1 - broad (`RFV13D`): coded 0-1260
+  - Reason for visit #2 - broad (`RFV23D`): coded 0-1260
+  - Reason for visit #3 - broad (`RFV33D`): coded 0-1260
+  
+
 **Patient Medical History**
   - Alzheimer's/Dementia (`ALZHD`)
   - Asthma (`ASTHMA`)
@@ -315,9 +328,16 @@ Below are the 150 features we used for analysis. Words written in parentheses re
   - Physician assistant (`PHYSASST`)
   - Other provider (`OTHPROV`)
   - RN or LPN (`RNLPN`)
-
-
+**Supervisors for Observation Unit**
+  - ED physicians (`OBSPHYSED`)
+  - Hospitalists (`OBSHOSP`)
+  
+  
 **Hospital Management and Equipment Available**
   - Computer assisted triage (`CATRIAGE`)
   - Electronic dashboard displaying updated patient info and status (`DASHBORD`)
   - Zone nursing (`ZONENURS`): all nurse's patients located in one area
+
+**Miscellaneous**
+  - Length of stay in observation unit in minutes (`OBSSTAY`)
+  
