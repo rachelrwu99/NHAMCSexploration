@@ -2,7 +2,9 @@
 glm_fit = glm(ADMITHOS ~ .,
               family = "binomial",
               data = admit_train[1:50], na.action = na.exclude)
-coef(glm_fit)
+
+write_tsv(as.data.frame(summary(glm_fit)$coef), file="/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/logreg-features-table.tsv")
+
 
 fitted_probabilities_glm = predict(glm_fit,
                                    newdata = admit_test,
