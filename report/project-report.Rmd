@@ -119,6 +119,12 @@ We started our analysis using a logistic regression based on a limited subset of
 
 We were able to achieve a baseline misclassification error of 9.21%. Our approach was to improve on that performance by using other learning methods and expanding the feature space.
 
+We proceeded to evaluate our classifier with an ROC Curve in Figure \@ref(fig:roc-plot). The area under the curve is 0.6812, making the baseline classifier better than a naive classifier.
+
+```{r roc-plot, out.width = "80%", fig.cap = "ROC curve for logistic regression, area under the curve of 0.6812.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/ROC.png")
+```
+
 ### Penalized regression
 
 #### Lasso Logistic Regression
@@ -223,7 +229,7 @@ knitr::include_graphics("../results/tree_pruned_plot.png")
 
 The next classifier that we used was a random forest. The OBB error for the random forest can be found in Figure \@ref(fig:rf-error-plot), the OBB errors for varying mtry or number of features to consider at each split point can be found in Figure \@ref(fig:rf-tuning-plot) and the variable importance plot can be found in Figure \@ref(fig:rf-varImp-plot). 
 
-We were able to achieve a misclassification rate of 8.5% which is a significant improvement from previous models.
+We were able to achieve a misclassification rate of 7.9% which is a significant improvement from previous models.
 
 ```{r rf-error-plot, out.width = "90%", fig.cap = "Random forest OBB Error Plot.", fig.align='center', echo = FALSE}
 knitr::include_graphics("../results/rand_forest_error.png")
@@ -239,18 +245,41 @@ knitr::include_graphics("../results/rand_forest_varImpPlot.png")
 
 ### Boosting
 
-Finally, we used boosted decision trees to predict our response variable. Figure \@ref(fig:boost-error-plot) shows the CV errors for different tree depths, helping us to 
+Finally, we used boosted decision trees to predict our response variable. Figure \@ref(fig:boost-error-plot) shows the CV errors for different tree depths, helping us to tune this hyperparameter. Based on this plot, we determined that the optimal model had depth of 2. Using that model we created predictions and were able to achieve a misclassification error of 9.9%. 
+
+Table \@ref(tab:boost-relimp-table) shows the different relative importances of the variables. Figure \@ref(fig:boost-age-plot) shows the partial dependence plot for age and Figure \@ref(fig:boost-totdiag-plot) shows the partial dependence plot for total number of diagnostic services ordered or provided.
+
+```{r boost-error-plot, out.width = "90%", fig.cap = "Boosting CV Errors for varying tree depths.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/boosting_cverror_plot.png")
+```
+
+```{r boost-age-plot, out.width = "90%", fig.cap = "Partial dependence plot for age.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/boosting_age_partial_dependence_plot.png")
+```
+
+```{r boost-totdiag-plot, out.width = "90%", fig.cap = "Partial dependence plot for total number of diagnostic services ordered or provided", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/boosting_totdiag_partial_dependence_plot.png")
+```
+
+```{r boost-relimp-table, message = FALSE, echo = FALSE}
+read_tsv("../results/boosting_var_summary.tsv") %>%
+  kable(format = "latex", row.names = NA, 
+        booktabs = TRUE, digits = 2, 
+        col.names = c("Variable", "Relative Importance"),
+        caption = "Relative importance of variables in boosted model.") %>%
+  kable_styling(position = "center")
+```
 
 # Conclusions
 
 ## Method comparison
 
 ```{r model-evaluation, message = FALSE, echo = FALSE}
-#read_tsv("../results/model-evaluation.tsv") %>%
-  #kable(format = "latex", row.names = NA,
-  #      booktabs = TRUE, digits = 2,
-  #      caption = "Root-mean-squared prediction errors for lasso and ridge regressions.") %>%
-  #kable_styling(position = "center")
+read_tsv("../results/model-evaluation.tsv") %>%
+  kable(format = "latex", row.names = NA,
+        booktabs = TRUE, digits = 2,
+        caption = "Misclassification errors for regression and tree based methods.") %>%
+  kable_styling(position = "center")
 ```
 
 Table \@ref(tab:model-evaluation) shows the misclassification for all the methods considered. Except for the OLS, the random forest and the boosted model have the lowest test errors. This is reasonable given these models’ tendencies to have high predictive accuracy. Between the two, the boosted model has the lowest test error, with a mean squared error of 0.000139, but it is closely followed by random forest, which has a mean squared error of 0.00141. Notably, however, the ridge, LASSO, and elastic net regressions perform about as well, with test MSEs of 0.000158, 0.000164, and 0.000161, respectively. Although OLS has the lowest training and test error, its adjusted R-squared value was only about 0.3, and there were too many features given the number of observations.
@@ -260,8 +289,6 @@ Regardless of these differences in test MSE, the methods overlap significantly i
 
 ## Takeaways
 Among all initial patient characteristics, blood diagnostic tests, such as the complete blood count (CBC), the blood clotting test (PTTINR), and blood cultures (BLOODCX), seem to be the most indicative signs of whether a patient will be admitted to the hospital. This makes sense since our blood carries toxins, bacteria, and indicators of cancers.
-
-
 
 ## Limitations
 

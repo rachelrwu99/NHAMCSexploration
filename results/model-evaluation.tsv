@@ -1,0 +1,9 @@
+Model	Misclassification Error
+Logistic Regression	0.0921
+Lasso	0.0871
+Ridge	0.107
+Elastic	0.0954
+Unpruned Tree	0.1136929
+Pruned Tree	0.1120332
+Random Forest	0.07883817
+Boosting	0.09875519
