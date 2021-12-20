@@ -192,7 +192,7 @@ We ran into difficulty with the random forests and boosting models. Some of our 
 
 # Appendix: Descriptions of features {#appendix}
 
-Below are the 159 features we used for analysis. Words written in parentheses represent variable names. Unless noted otherwise, all variables are categorical. 
+Below are the 150 features we used for analysis. Words written in parentheses represent variable names. Unless noted otherwise, all variables are categorical. 
 
 **Patient Medical History**
   - Alzheimer's/Dementia (`ALZHD`)

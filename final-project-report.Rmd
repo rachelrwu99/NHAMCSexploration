@@ -224,7 +224,7 @@ admit_train %>%
 **Around 10.6% of people were admitted to the hospital.**
 ```{r}
 # correlation matrix
-corr_simple <- function(data=df,sig=0.3){
+corr_simple <- function(data=df,sig=0.5){
   #convert data to numeric in order to run correlations
   #convert to factor first to keep the integrity of the data - each value will become a number rather than turn into NA
   df_cor <- data %>% mutate_if(is.character, as.factor)

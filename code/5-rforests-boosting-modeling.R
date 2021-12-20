@@ -133,16 +133,29 @@ dev.off()
 
 
 # partial dependence plots
-gbm_fit_optimal = gbm_fit_3
-optimal_num_trees = gbm.perf(gbm_fit_3, plot.it = FALSE)
+gbm_fit_optimal = gbm_fit_2
+optimal_num_trees = gbm.perf(gbm_fit_2, plot.it = FALSE)
 var_sum <- summary(gbm_fit_optimal, n.trees = optimal_num_trees, plotit = FALSE) %>%
-  head(11) 
+  head(12) 
 var_sum %>% write_tsv("/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/boosting_var_summary.tsv")#want this table as a kable 
 
+png(width = 6, 
+    height = 4,
+    res = 300,
+    units = "in", 
+    filename = 
+      "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/boosting_age_partial_dependence_plot.png")
 plot(gbm_fit_optimal, i.var = "AGE", n.trees = optimal_num_trees, type = "response")
-plot(gbm_fit_optimal, i.var = "NUMDIS", n.trees = optimal_num_trees, type = "response")
-plot(gbm_fit_optimal, i.var = "TOTDIAG", n.trees = optimal_num_trees, type = "response")
+dev.off()
 
+png(width = 6, 
+    height = 4,
+    res = 300,
+    units = "in", 
+    filename = 
+      "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/boosting_totdiag_partial_dependence_plot.png")
+plot(gbm_fit_optimal, i.var = "TOTDIAG", n.trees = optimal_num_trees, type = "response")
+dev.off()
 
 # Making predictions 
 
@@ -150,3 +163,4 @@ gbm_probabilities = predict(gbm_fit_optimal, n.trees = optimal_num_trees,
                             type = "response", newdata = admit_test)
 gbm_predictions = as.numeric(gbm_probabilities > 0.5)
 misclas_boost <- mean(gbm_predictions != admit_test$ADMITHOS)
+misclas_boostHC <- 0.09875519
