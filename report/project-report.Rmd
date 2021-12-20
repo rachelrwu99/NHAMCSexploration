@@ -119,7 +119,11 @@ We started our analysis using a logistic regression based on a limited subset of
 
 We were able to achieve a baseline misclassification error of 9.21%. Our approach was to improve on that performance by using other learning methods and expanding the feature space.
 
-We proceeded to evaluate our classifier with an ROC Curve in Figure \@ref(fig:roc-plot). The area under the curve is 0.6812, making the baseline classifier stronger than 
+We proceeded to evaluate our classifier with an ROC Curve in Figure \@ref(fig:roc-plot). The area under the curve is 0.6812, making the baseline classifier better than a naive classifier.
+
+```{r roc-plot, out.width = "80%", fig.cap = "ROC curve for logistic regression, area under the curve of 0.6812.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/ROC.png")
+```
 
 ### Penalized regression
 
@@ -250,14 +254,14 @@ knitr::include_graphics("../results/boosting_cverror_plot.png")
 ```
 
 ```{r boost-age-plot, out.width = "90%", fig.cap = "Partial dependence plot for age.", fig.align='center', echo = FALSE}
-knitr::include_graphics("../results/boosting_age_partial_dependence_plot")
+knitr::include_graphics("../results/boosting_age_partial_dependence_plot.png")
 ```
 
 ```{r boost-totdiag-plot, out.width = "90%", fig.cap = "Partial dependence plot for total number of diagnostic services ordered or provided", fig.align='center', echo = FALSE}
-knitr::include_graphics("../results/boosting_totdiag_partial_dependence_plot")
+knitr::include_graphics("../results/boosting_totdiag_partial_dependence_plot.png")
 ```
 
-```{r elnet-coefficients, message = FALSE, echo = FALSE}
+```{r boost-relimp-table, message = FALSE, echo = FALSE}
 read_tsv("../results/boosting_var_summary.tsv") %>%
   kable(format = "latex", row.names = NA, 
         booktabs = TRUE, digits = 2, 
@@ -271,11 +275,11 @@ read_tsv("../results/boosting_var_summary.tsv") %>%
 ## Method comparison
 
 ```{r model-evaluation, message = FALSE, echo = FALSE}
-#read_tsv("../results/model-evaluation.tsv") %>%
-  #kable(format = "latex", row.names = NA,
-  #      booktabs = TRUE, digits = 2,
-  #      caption = "Root-mean-squared prediction errors for lasso and ridge regressions.") %>%
-  #kable_styling(position = "center")
+read_tsv("../results/model-evaluation.tsv") %>%
+  kable(format = "latex", row.names = NA,
+        booktabs = TRUE, digits = 2,
+        caption = "Misclassification errors for regression and tree based methods.") %>%
+  kable_styling(position = "center")
 ```
 
 Table \@ref(tab:model-evaluation) shows the misclassification for all the methods considered. Except for the OLS, the random forest and the boosted model have the lowest test errors. This is reasonable given these models’ tendencies to have high predictive accuracy. Between the two, the boosted model has the lowest test error, with a mean squared error of 0.000139, but it is closely followed by random forest, which has a mean squared error of 0.00141. Notably, however, the ridge, LASSO, and elastic net regressions perform about as well, with test MSEs of 0.000158, 0.000164, and 0.000161, respectively. Although OLS has the lowest training and test error, its adjusted R-squared value was only about 0.3, and there were too many features given the number of observations.
