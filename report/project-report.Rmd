@@ -121,8 +121,6 @@ We started our analysis using a logistic regression based on a limited subset of
 
 We were able to achieve a baseline misclassification error of 9.21%. Our approach was to improve on that performance by using other learning methods and expanding the feature space.
 
-################# ROC CURVE Here ###########
-
 ### Penalized regression
 
 #### Lasso Logistic Regression
@@ -225,7 +223,25 @@ knitr::include_graphics("../results/tree_pruned_plot.png")
 
 ### Random Forest
 
+The next classifier that we used was a random forest. The OBB error for the random forest can be found in Figure \@ref(fig:rf-error-plot), the OBB errors for varying mtry or number of features to consider at each split point can be found in Figure \@ref(fig:rf-tuning-plot) and the variable importance plot can be found in Figure \@ref(fig:rf-varImp-plot). 
+
+We were able to achieve a misclassification rate of 8.5% which is a significant improvement from previous models.
+
+```{r rf-error-plot, out.width = "90%", fig.cap = "Random forest OBB Error Plot.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/rand_forest_error.png")
+```
+
+```{r rf-tuning-plot, out.width = "90%", fig.cap = "Random forest OBB Error Plot, varying mtry.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/rand_forest_tuning.png")
+```
+
+```{r rf-varImp-plot, out.width = "90%", fig.cap = "Random forest Variable Importance Plot.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/rand_forest_varImpPlot.png")
+```
+
 ### Boosting
+
+Finally, we used boosted decision trees to predict our response variable. Figure \@ref(fig:boost-error-plot) shows the CV errors for different tree depths, helping us to 
 
 # Conclusions
 

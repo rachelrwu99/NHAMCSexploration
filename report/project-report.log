@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2022/dev) (preloaded format=pdflatex 2021.12.19)  19 DEC 2021 22:27
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2022/dev) (preloaded format=pdflatex 2021.12.19)  19 DEC 2021 22:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -642,116 +642,151 @@ l.237 W
 <../results/lasso-cv-plot.png, id=173, 1806.75pt x 1204.5pt>
 File: ../results/lasso-cv-plot.png Graphic file (type png)
 <use ../results/lasso-cv-plot.png>
-Package pdftex.def Info: ../results/lasso-cv-plot.png  used on input line 255.
+Package pdftex.def Info: ../results/lasso-cv-plot.png  used on input line 253.
 (pdftex.def)             Requested size: 422.76677pt x 281.84451pt.
 <../results/lasso-trace-plot.png, id=174, 1806.75pt x 1204.5pt>
 File: ../results/lasso-trace-plot.png Graphic file (type png)
 <use ../results/lasso-trace-plot.png>
 Package pdftex.def Info: ../results/lasso-trace-plot.png  used on input line 26
-4.
+2.
 (pdftex.def)             Requested size: 422.76677pt x 281.84451pt.
 [6pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.301 
-       <../results/lasso-cv-plot.png>] [7pdfTeX warning (ext4): destination wit
-h the same identifier (name{figure.4}) has been already used, duplicate ignored
-
+l.300 W
+       ith the ridge classifier our missclassification error was 10.7\%. <../re
+sults/lasso-cv-plot.png>] [7pdfTeX warning (ext4): destination with the same id
+entifier (name{figure.4}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.301 
-      pdfTeX warning (ext4): destination with the same identifier (name{table.2
-}) has been already used, duplicate ignored
+l.300 W
+       ith the ridge classifier our missclassification error was 10.7\%.pdfTeX 
+warning (ext4): destination with the same identifier (name{table.2}) has been a
+lready used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.301 
-       <../results/lasso-trace-plot.png>]
-<../results/ridge-cv-plot.png, id=200, 1806.75pt x 1204.5pt>
+l.300 W
+       ith the ridge classifier our missclassification error was 10.7\%. <../re
+sults/lasso-trace-plot.png>]
+<../results/ridge-cv-plot.png, id=204, 1806.75pt x 1204.5pt>
 File: ../results/ridge-cv-plot.png Graphic file (type png)
 <use ../results/ridge-cv-plot.png>
-Package pdftex.def Info: ../results/ridge-cv-plot.png  used on input line 306.
+Package pdftex.def Info: ../results/ridge-cv-plot.png  used on input line 304.
 (pdftex.def)             Requested size: 422.76677pt x 281.84451pt.
-<../results/ridge-trace-plot.png, id=201, 1806.75pt x 1204.5pt>
+<../results/ridge-trace-plot.png, id=205, 1806.75pt x 1204.5pt>
 File: ../results/ridge-trace-plot.png Graphic file (type png)
 <use ../results/ridge-trace-plot.png>
 Package pdftex.def Info: ../results/ridge-trace-plot.png  used on input line 31
-5.
+3.
 (pdftex.def)             Requested size: 422.76677pt x 281.84451pt.
-<../results/elnet-trace-plot.png, id=204, 1806.75pt x 1204.5pt>
+<../results/elnet-trace-plot.png, id=208, 1806.75pt x 1204.5pt>
 File: ../results/elnet-trace-plot.png Graphic file (type png)
 <use ../results/elnet-trace-plot.png>
 Package pdftex.def Info: ../results/elnet-trace-plot.png  used on input line 35
-7.
+5.
 (pdftex.def)             Requested size: 422.76677pt x 281.84451pt.
-<../results/tree_plot.png, id=206, 1806.75pt x 1204.5pt>
+<../results/tree_plot.png, id=210, 1806.75pt x 1204.5pt>
 File: ../results/tree_plot.png Graphic file (type png)
 <use ../results/tree_plot.png>
-Package pdftex.def Info: ../results/tree_plot.png  used on input line 400.
+Package pdftex.def Info: ../results/tree_plot.png  used on input line 398.
 (pdftex.def)             Requested size: 422.76677pt x 281.84451pt.
-
-LaTeX Warning: Reference `fig:tree-pruned-plot' on page 8 undefined on input li
-ne 410.
-
-<../results/tree_pruned_plot.png, id=207, 1806.75pt x 1204.5pt>
+<../results/tree_pruned_plot.png, id=212, 1806.75pt x 1204.5pt>
 File: ../results/tree_pruned_plot.png Graphic file (type png)
 <use ../results/tree_pruned_plot.png>
 Package pdftex.def Info: ../results/tree_pruned_plot.png  used on input line 41
-4.
+2.
 (pdftex.def)             Requested size: 422.76677pt x 281.84451pt.
 [8pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.419 \end{figure}
-                   <../results/ridge-cv-plot.png>] [9pdfTeX warning (ext4): des
-tination with the same identifier (name{figure.6}) has been already used, dupli
-cate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.419 \end{figure}
-                  pdfTeX warning (ext4): destination with the same identifier (
-name{table.3}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.419 \end{figure}
-                   <../results/ridge-trace-plot.png>] [10pdfTeX warning (ext4):
- destination with the same identifier (name{figure.7}) has been already used, d
-uplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.419 \end{figure}
-                  pdfTeX warning (ext4): destination with the same identifier (
-name{table.4}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.419 \end{figure}
-                   <../results/elnet-trace-plot.png>]
+l.423 
+       <../results/ridge-cv-plot.png>] [9pdfTeX warning (ext4): destination wit
+h the same identifier (name{figure.6}) has been already used, duplicate ignored
 
-LaTeX Warning: Reference `tab:model-evaluation' on page 11 undefined on input l
-ine 433.
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.423 
+      pdfTeX warning (ext4): destination with the same identifier (name{table.3
+}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.423 
+       <../results/ridge-trace-plot.png>] [10pdfTeX warning (ext4): destination
+ with the same identifier (name{figure.7}) has been already used, duplicate ign
+ored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.423 
+      pdfTeX warning (ext4): destination with the same identifier (name{table.4
+}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.423 
+       <../results/elnet-trace-plot.png>] [11pdfTeX warning (ext4): destination
+ with the same identifier (name{figure.8}) has been already used, duplicate ign
+ored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.423 
+      pdfTeX warning (ext4): destination with the same identifier (name{figure.
+9}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.423 
+       <../results/tree_plot.png> <../results/tree_pruned_plot.png>]
+<../results/rand_forest_error.png, id=249, 1806.75pt x 1204.5pt>
+File: ../results/rand_forest_error.png Graphic file (type png)
+<use ../results/rand_forest_error.png>
+Package pdftex.def Info: ../results/rand_forest_error.png  used on input line 4
+28.
+(pdftex.def)             Requested size: 422.76677pt x 281.84451pt.
+<../results/rand_forest_tuning.png, id=250, 1806.75pt x 1204.5pt>
+File: ../results/rand_forest_tuning.png Graphic file (type png)
+<use ../results/rand_forest_tuning.png>
+Package pdftex.def Info: ../results/rand_forest_tuning.png  used on input line 
+437.
+(pdftex.def)             Requested size: 422.76677pt x 281.84451pt.
+<../results/rand_forest_varImpPlot.png, id=251, 2710.125pt x 2710.125pt>
+File: ../results/rand_forest_varImpPlot.png Graphic file (type png)
+<use ../results/rand_forest_varImpPlot.png>
+Package pdftex.def Info: ../results/rand_forest_varImpPlot.png  used on input l
+ine 446.
+(pdftex.def)             Requested size: 422.75299pt x 422.75299pt.
 
-[11pdfTeX warning (ext4): destination with the same identifier (name{figure.8})
- has been already used, duplicate ignored
+LaTeX Warning: Reference `tab:model-evaluation' on page 12 undefined on input l
+ine 462.
+
+[12pdfTeX warning (ext4): destination with the same identifier (name{figure.10}
+) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.436 
-       <../results/tree_plot.png>] [12pdfTeX warning (ext4): destination with t
-he same identifier (name{figure.9}) has been already used, duplicate ignored
+l.465 
+       <../results/rand_forest_error.png>] [13pdfTeX warning (ext4): destinatio
+n with the same identifier (name{figure.11}) has been already used, duplicate i
+gnored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.457 
-       <../results/tree_pruned_plot.png>]
+l.482 ...limitations}\label{analysis-limitations}}
+                                                   <../results/rand_forest_tuni
+ng.png>] [14pdfTeX warning (ext4): destination with the same identifier (name{f
+igure.12}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.482 ...limitations}\label{analysis-limitations}}
+                                                   <../results/rand_forest_varI
+mpPlot.png>]
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 4
-69.
+98.
 (/Users/leo/Library/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 5
-01.
+30.
 (/Users/leo/Library/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-) [13] [14] (./project-report.aux)
+) [15] [16] (./project-report.aux)
 
 LaTeX Warning: There were undefined references.
 
@@ -759,10 +794,10 @@ Package rerunfilecheck Info: File `project-report.out' has not changed.
 (rerunfilecheck)             Checksum: A807587E4E191D87C66A1D1E70A6C51C;2165.
  ) 
 Here is how much of TeX's memory you used:
- 13093 strings out of 480313
- 207064 string characters out of 5896786
+ 13134 strings out of 480313
+ 208394 string characters out of 5896786
  520855 words of memory out of 5000000
- 30590 multiletter control sequences out of 15000+600000
+ 30623 multiletter control sequences out of 15000+600000
  458477 words of font info for 71 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  60i,9n,63p,1573b,390s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -776,10 +811,10 @@ nts/type1/public/lm/lmr12.pfb></Users/leo/Library/TinyTeX/texmf-dist/fonts/type
 /lm/lmr6.pfb></Users/leo/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.
 pfb></Users/leo/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb></Use
 rs/leo/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on project-report.pdf (14 pages, 1285785 bytes).
+Output written on project-report.pdf (16 pages, 1773988 bytes).
 PDF statistics:
- 340 PDF objects out of 1000 (max. 8388607)
- 284 compressed objects within 3 object streams
- 101 named destinations out of 1000 (max. 500000)
- 182 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 362 PDF objects out of 1000 (max. 8388607)
+ 298 compressed objects within 3 object streams
+ 106 named destinations out of 1000 (max. 500000)
+ 197 words of extra memory for PDF output out of 10000 (max. 10000000)
 
