@@ -45,7 +45,14 @@ race_admit = data_factored %>%
   mutate(admit_rate = formattable::percent(cnt / sum(cnt))) %>%
   filter(ADMITHOS==1) %>%
   cbind(race = c("Non-Hispanic White","Non-Hispanic Black", "Hispanic")) %>%
-  select(-c(ADMITHOS,cnt))# %>%
+  select(-c(ADMITHOS,cnt))
+
+race_admit = race_admit %>%
+  ungroup() %>%
+  select(-RACER) %>%
+  select(race, everything()) %>%
+  add_row(race = "Total", admit_rate = formattable::percent(0.109)) %>%
+  write_tsv("/Users/leo/Documents/University/Academic Plan/Fall 2021/STAT 571/Final Project/NHAMCSexploration/results/race-admit.tsv")
   
 race_admit %>%
   ggplot(aes(x = race, y = admit_rate)) +
@@ -60,6 +67,14 @@ ggsave(filename = "/Users/leo/Documents/University/Academic Plan/Fall 2021/STAT 
        width = 6, 
        height = 4)
 dev.off()
+
+
+# total admittance rate
+data_factored %>%
+  group_by(ADMITHOS) %>%
+  summarise(cnt = n()) %>%
+  mutate(admit_rate = formattable::percent(cnt / sum(cnt)))
+
 
 
 # correlation matrix
@@ -98,3 +113,4 @@ png(width = 6,
       "/Users/rachelwu/Documents/GitHub/NHAMCSexploration/results/correlation_matrix.png")
 corr_simple(admit_train)
 dev.off()
+

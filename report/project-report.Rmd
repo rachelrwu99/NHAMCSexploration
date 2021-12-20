@@ -1,5 +1,5 @@
 ---
-title: 'Discovering Factors Contributing to Admittance \n into the Hospital from the  \n Emergency Department'
+title: 'Discovering Factors Contributing to Admittance into the Hospital from the Emergency Department'
 author: 'Leontij Potupin and Rachel Wu'
 date: 'December 19th, 2021'
 output:
@@ -84,20 +84,27 @@ After cleaning the data, we randomly selected 80% of our dataset into a training
 
 ### Response
 
-We first sought to understand the response variable’s distribution. As seen in the histogram of deaths variable (Figure \@ref(fig:response-histogram)), the data appears to be right-skewed, with some counties exceeding a death per cases rate of 0.1.  The median deaths per cases is 0.018. We proceeded to determine which counties had extreme response rates by looking at the sorted data. The sorted data (Table \@ref(tab:top-10-counties)) shows that aggregated across 2020, the highest rates of deaths per cases were primarily in northeastern states such as New York, New Jersey, and Connecticut.
+We found that 10.9% of patients were admitted to the hospital after being seen in the emergency department, enhancing our understanding of the response variable’s distribution within our dataset. We created histograms depicting the overlay of some relevant features with ADMITHOS, our response variable, to get a better feel for the distribution of our response variable.
 
 ```{r response-histogram, out.width = "80%", fig.cap = "Distribution of case-fatality rate; vertical dashed line indicates the median.", fig.align='center', echo = FALSE}
-knitr::include_graphics("../results/response-histogram.png")
+knitr::include_graphics("../results/admit-distribution-plot.png")
 ```
 
-```{r top-10-counties, message = FALSE, echo = FALSE}
-read_tsv("../results/top-10-counties-data.tsv") %>%
+Looking at the race variable revealed that hospital admittance rates vary greatly across ethnic groups. For instance, 11.8% of white people get admitted to the hospital whereas only 8.0% of black people get admitted which poses the question of fairness and equity in the healthcare system.
+
+```{r race-admittance, message = FALSE, echo = FALSE}
+read_tsv("../results/race-admit.tsv") %>%
   kable(format = "latex", row.names = NA, 
         booktabs = TRUE, digits = 2, 
-        col.names = c("County", "State", "Case-fatality rate"),
-        caption = "Top ten counties by case-fatality rate 
-        (expressed as a percentage).") %>%
+        col.names = c("Race", "Hospital Admittance Rate"),
+        caption = "Hospital admittance by race.") %>%
   kable_styling(position = "center")
+```
+
+The AGE variable in the cleaned dataset has two humps around 0 and 25 with an overall median age of 39. This is approximately consistent with the age distribution of the United States where there the age distribution declines approximately linearly with increasing age.
+
+```{r age-histogram, out.width = "80%", fig.cap = "Distribution of age; vertical dashed line indicates the median.", fig.align='center', echo = FALSE}
+knitr::include_graphics("../results/age-distribution-plot.png")
 ```
 
 ### Features
@@ -108,17 +115,16 @@ read_tsv("../results/top-10-counties-data.tsv") %>%
 
 ## Regression-based methods
 
-### Ordinary least squares
+### Logistic Regression
 
-[Omitted from template.]
+We started our analysis using a logistic regression based on a limited subset of 50 features due to the high complexity of a logistic regression classifier with 159 variables that would be prone to overfitting.
+We were able to achieve a misclassification error of X.
 
 ### Penalized regression
 
-Despite the ordinary least squares method seeming to work well, we realized that fitting a linear model with so many explanatory variables might incur a large cost in variance and lead to suboptimal predictions. Hence, we decided to build and evaluate shrinkage models with the hopes of getting a more parsimonious and interpretable model. We ran three cross-validated regressions for which optimal values of lambda were chosen according to the one-standard-error rule: ridge, LASSO (Least Absolute Shrinkage and Selection Operator), and elastic net. 
-
 For the lasso, Figure \@ref(fig:lasso-CV-plot) shows the CV plot, Figure \@ref(fig:lasso-trace-plot) shows the trace plot, and Table \@ref(tab:lasso-coefficients) shows the selected features and their coefficients. 
 
-[Interpretation of lasso omitted from this template. Other penalized regression methods omitted from this template.]
+It is noteworthy that the variable TOTDIAG or the total number of diagnostic services ordered or provided seems to be important 
 
 
 ```{r lasso-CV-plot, out.width = "90%", fig.cap = "Lasso CV plot.", fig.align='center', echo = FALSE}
@@ -130,13 +136,13 @@ knitr::include_graphics("../results/lasso-trace-plot.png")
 ```
 
 ```{r lasso-coefficients, message = FALSE, echo = FALSE}
-read_tsv("../results/lasso-features-table.tsv") %>%
-  kable(format = "latex", row.names = NA, 
-        booktabs = TRUE, digits = 2, 
-        col.names = c("Feature", "Coefficient"),
-        caption = "Standardized coefficients for features in the lasso 
-        model based on the one-standard-error rule.") %>%
-  kable_styling(position = "center")
+#read_tsv("../results/lasso-features-table.tsv") %>%
+#  kable(format = "latex", row.names = NA, 
+#        booktabs = TRUE, digits = 2, 
+#        col.names = c("Feature", "Coefficient"),
+#        caption = "Standardized coefficients for features in the lasso 
+#        model based on the one-standard-error rule.") %>%
+#  kable_styling(position = "center")
 ```
 
 ## Tree-based methods
@@ -152,11 +158,11 @@ read_tsv("../results/lasso-features-table.tsv") %>%
 ## Method comparison
 
 ```{r model-evaluation, message = FALSE, echo = FALSE}
-read_tsv("../results/model-evaluation.tsv") %>%
-  kable(format = "latex", row.names = NA,
-        booktabs = TRUE, digits = 2,
-        caption = "Root-mean-squared prediction errors for lasso and ridge regressions.") %>%
-  kable_styling(position = "center")
+#read_tsv("../results/model-evaluation.tsv") %>%
+  #kable(format = "latex", row.names = NA,
+  #      booktabs = TRUE, digits = 2,
+  #      caption = "Root-mean-squared prediction errors for lasso and ridge regressions.") %>%
+  #kable_styling(position = "center")
 ```
 
 Table \@ref(tab:model-evaluation) shows the test RMSE for all the methods considered. Except for the OLS, the random forest and the boosted model have the lowest test errors. This is reasonable given these models’ tendencies to have high predictive accuracy. Between the two, the boosted model has the lowest test error, with a mean squared error of 0.000139, but it is closely followed by random forest, which has a mean squared error of 0.00141. Notably, however, the ridge, LASSO, and elastic net regressions perform about as well, with test MSEs of 0.000158, 0.000164, and 0.000161, respectively. Although OLS has the lowest training and test error, its adjusted R-squared value was only about 0.3, and there were too many features given the number of observations.
