@@ -28,9 +28,9 @@ The code to reproduce this report is available [on Github](https://github.com/ra
 
 **Data.** Our data comes from the publicly available National Hospital Ambulatory Medical Care Survey (NHAMCS). It is compiled by the Centers for Disease Control and Prevention and a nationally representative survey of emergency departments in the United States when used with the weights included in the data set. However, we did not use the survey weights for our analysis. Each of the observations is a discrete patient visit to an emergency department. The features we use in our analysis are measurements taken upon entry to the emergency department and during the patient’s stay in the emergency department. We faced challenges with selecting variables, classifying categorical variables as factors, and dealing with missing data.
 
-**Analysis.** 
+**Analysis.** We analyzed hospital admittance based on 150 features from the NHAMCS dataset using various regression and tree based prediction methods.
 
-**Conclusions.** 
+**Conclusions.** In summary, we were able to achieve a minimum misclassification error on unseen test data of 7.88% using a random forest classifier.
 
 # Introduction
 
