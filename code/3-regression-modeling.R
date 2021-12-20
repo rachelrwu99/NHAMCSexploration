@@ -1,3 +1,27 @@
+########## Logistic Regression ########
+glm_fit = glm(ADMITHOS ~ .,
+              family = "binomial",
+              data = admit_train[1:50], na.action = na.exclude)
+
+coef(glm_fit)
+
+fitted_probabilities_glm = predict(glm_fit,
+                                   newdata = admit_test,
+                                   type = "response") # to get output on probability scale head(fitted_probabilities)
+
+predictions_glm = as.numeric(fitted_probabilities_glm > 0.5)
+
+admit_test_pred = admit_test %>%
+  mutate(predicted_admit_glm = predictions_glm)
+
+# then calculate misclassification rate
+misclass_linear_reg <- admit_test_pred %>%
+  summarise(mean(ADMITHOS != predicted_admit_glm))
+misclass_linear_reg <- 0.0921
+#confusion matrix
+admit_test_pred %>%
+  select(ADMITHOS, predicted_admit_glm) %>%
+  table()
 
 ###########LASSO##################
 lasso_fit50 = cv.glmnet(ADMITHOS ~ ., # formula notation, as usual
