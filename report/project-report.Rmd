@@ -291,7 +291,7 @@ Regardless of these differences in the misclassification error, the methods over
 
 
 ## Takeaways
-
+Among all initial patient characteristics, blood diagnostic tests, such as the complete blood count (CBC), the blood clotting test (PTTINR), and blood cultures (BLOODCX), seem to be the most indicative signs of whether a patient will be admitted to the hospital. This makes sense since our blood carries toxins, bacteria, and indicators of cancers.
 
 ## Limitations
 
@@ -309,7 +309,7 @@ For the unpruned tree visualization, some of our features included more than 105
  
 
 ## Follow-ups
-
+The inner machinations of any emergency departments are quite complex and our findings in this paper only graze the surface of the beginnings of a potential flow optimization. We saw trends pointing towards the importance of blood cultures, and a next step would be to gain more information about which  specific blood tests are most likely to cause a patient to be admitted into the hospital. Another next step would be to find a way to keep the variables that we excluded during the cleaning stage to see if these features contribute to probability of hospital admittance. We would also like to update these models after data from 2020 and 2021 are released, to see if and how the COVID-19 pandemic has influenced the characteristics of who presents to the emergency departments and if the same features were relevant during such an unusual time. 
 
 
 \appendix
